@@ -5,7 +5,7 @@
 # s3 = "/"
 # s4 = "u"
 # s5 = "f"
-# s6 = first byte list address in heap
+# s6 = first byte of list address in heap
 
 	.data # stores data in RAM
 	.align 0 # aligns data by byte
@@ -46,7 +46,7 @@ list:
 	jr ra # jump to return address
 
 # Function that inserts an element into the list
-# a0: list address
+# a0: list address (not used, saved in s6 instead)
 # a1: value to be saved in node (int)
 list_push:
 	# allocates memory in heap (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
