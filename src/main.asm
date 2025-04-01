@@ -39,8 +39,14 @@ list:
 # TODO
 # Function that inserts an element into the list
 # a0: list address
-# a1: value to be entered
+# a1: value to be saved in node (int)
 list_push:
+	# allocates memory in heap (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
+	li a7, 9 # instruction 9: allocate memory on heap
+	li a0, 8 # size to be allocated: 8 bytes
+	ecall # syscall to allocate memory on the heap
+
+	
 
 # TODO
 # Function to test list
