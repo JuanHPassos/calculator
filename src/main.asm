@@ -55,7 +55,12 @@ list_push:
 	li a0, 8 # size to be allocated: 8 bytes
 	ecall # syscall to allocate memory on the heap
 
-	
+	lw t2, 0(s6) # loading to t2 the address of the first/top node on the list
+	sw t2, 0(a0) # storing the address of the first/top node on the list into the new node
+	sw a1, 4(a0) # storing the value into the new node
+	sw a0, 0(s6) # making the new node the first/top node of the list
+
+	jr ra # jump to return address
 
 # TODO
 # Function to test list
