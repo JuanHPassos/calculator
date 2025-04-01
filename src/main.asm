@@ -19,7 +19,7 @@ functionalities:
 	.globl main # sets main as program start
 main:
 	# defines registers to store functionalities (s0 - s5)
-	la t0, features # loads 1st byte address 
+	la t0, functionalities # loads 1st byte address 
 	lb s0, 0(t0) # s0 = '+'
 	lb s1, 1(t0) # s1 = '-'
 	lb s2, 2(t0) # s2 = '*'
