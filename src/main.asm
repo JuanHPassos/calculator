@@ -1,11 +1,11 @@
-# Sumario dos regs e seus conteudos
+# Registers summary and their contents
 # s0 = "+"
 # s1 = "-"
 # s2 = "*"
 # s3 = "/"
 # s4 = "u"
 # s5 = "f"
-# s6 = 1º byte do endereço da lista na heap
+# s6 = first byte list address in heap
 
 	.data # stores data in RAM
 	.align 0 # aligns data by byte
