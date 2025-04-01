@@ -45,7 +45,6 @@ list:
 	sw zero, 0(a0) # set pointer to NULL(0)
 	jr ra # jump to return address
 
-# TODO
 # Function that inserts an element into the list
 # a0: list address
 # a1: value to be saved in node (int)
