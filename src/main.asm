@@ -29,7 +29,7 @@ main:
 	
 	# create list (returns the address of the list in a0)
 	jal list
-	add s6, zero, a0 # s6 = pointer to list
+	mv s6, a0 # s6 = pointer to list
 	
 	# TODO: read 1st input
 
@@ -46,18 +46,21 @@ list:
 	jr ra # jump to return address
 
 # Function that inserts an element into the list
-# a0: list address (not used, saved in s6 instead)
+# a0: list address
 # a1: value to be saved in node (int)
 list_push:
+	mv t0, a0 # copying the list address to t0 (t0 now holds the first byte of the list address)
+
 	# allocates memory in heap (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
 	li a7, 9 # instruction 9: allocate memory on heap
 	li a0, 8 # size to be allocated: 8 bytes
 	ecall # syscall to allocate memory on the heap
+	# OBS: a0 now holds the address to the new allocated space in the heap
 
-	lw t2, 0(s6) # loading to t2 the address of the first/top node on the list
-	sw t2, 0(a0) # storing the address of the first/top node on the list into the new node
+	lw t1, 0(t0) # loading to t1 the address of the first/top node on the list
+	sw t1, 0(a0) # storing the address of the first/top node on the list into the new node
 	sw a1, 4(a0) # storing the value into the new node
-	sw a0, 0(s6) # making the new node the first/top node of the list
+	sw a0, 0(t0) # making the new node the first/top node of the list
 
 	jr ra # jump to return address
 
