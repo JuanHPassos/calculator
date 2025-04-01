@@ -1,3 +1,12 @@
+# Sumario dos regs e seus conteudos
+# s0 = "+"
+# s1 = "-"
+# s2 = "*"
+# s3 = "/"
+# s4 = "u"
+# s5 = "f"
+# s6 = 1º byte do endereço da lista na heap
+
 	.data # stores data in RAM
 	.align 0 # aligns data by byte
 	# defines character of each functionality
