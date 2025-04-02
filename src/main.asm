@@ -55,6 +55,9 @@ list:
 list_push:
 	# copying the list address to t0 
 	mv t0, a0 # t0 now holds the first byte of the list address
+	
+	# catch possible error(dont try to acess null pointer)
+	beqz t0, error_null_list # t0 = 0, list dont exist(null pointer)
 
 	# allocates memory in heap 
 	# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
@@ -79,7 +82,7 @@ list_print:
 	mv t0, a0 # t0 now holds the first byte of the list address
 
 	# catch possible error(dont try to acess null pointer)
-	beqz t0, error_null_list
+	beqz t0, error_null_list # t0 = 0, list dont exist(null pointer)
 	
 	# get top to iterate through the list
 	lw t1, 0(t0) # loading to t1 the address of the first/top node on the list
