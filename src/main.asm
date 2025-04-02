@@ -17,6 +17,10 @@ functionalities:
 	# Error messages
 msg_null_list:
 	.asciz "Error: null list"
+	
+	# strings to format output
+space:
+	.asciz " "
 
 	.text # code
 	.align 2 # instructions aligned by word
@@ -34,7 +38,7 @@ main:
 	# create list 
 	jal list # returns the address of the list in a0
 	mv s6, a0 # s6 = pointer to list
-	 
+		 	 	 	 
 	# TODO: read 1st input
 
 # Function that creates a list
@@ -87,7 +91,6 @@ list_print:
 	# get top to iterate through the list
 	lw t1, 0(t0) # loading to t1 the address of the first/top node on the list
 
-
 loop_list_print:
 	# if current node dont exist(t1 == 0), break
 	beqz t1, loop_list_print_exit 
@@ -101,13 +104,17 @@ loop_list_print:
 	li a7, 1 # instruction 1: print int
 	ecall # syscall to print value in a0
 	
+	# separate numbers by space
+	li a7, 4 # instruction 4: print a string
+	la a0, space # load 1º byte adress
+	ecall # syscall to print string
+	
 	# continue to print values
 	j loop_list_print
 	
 loop_list_print_exit:
 	# end function
 	jr ra # jump to return address
-	
 
 # Function to print error message
 # in case of a list_null
