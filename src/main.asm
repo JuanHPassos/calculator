@@ -6,6 +6,8 @@
 # s4 = "u"
 # s5 = "f"
 # s6 = first byte of list address in heap
+# s7 = store code funcionality in calculator_on
+# s8 = read operation number in calculator_on
 
 	.data # stores data in RAM
 	.align 0 # aligns data by byte
@@ -34,7 +36,7 @@ main:
 	mv s6, a0 # s6 = pointer to list
 		 	 	 	 
 	# read 1st input
-	li a7, 5 # instruction 5: read int
+	li a7, 5 # syscall code 5: read int
 	ecall # syscall to read int(store in a0)
 	
 	# insert this input int list 
@@ -45,7 +47,7 @@ main:
 	
 calculator_on:
 	# read code funcionality
-	li a7, 12 # instruction 12: read char
+	li a7, 12 # syscall code 12: read char
 	ecall # syscall to read(store in a0)
 	mv s7, a0 # s7 = a0(save data input)
 	
@@ -57,7 +59,7 @@ calculator_on:
 	ecall 
 	
 	# read number to be operated
-	li a7, 5 # instruction 5: read int
+	li a7, 5 # syscall code 5: read int
 	ecall # syscall to read(store in a0)
 	mv s8, a0 # s8 = a0(save data input)
 	
@@ -130,7 +132,7 @@ calculator_off:
 	# OBS: i dont know if is necessary
 
 	# end programn
-	li a7, 10 # instruction 10: end programn
+	li a7, 10 # syscall code 10: end programn
 	ecall # syscall to end programn
 
 # Function that creates a list
@@ -138,7 +140,7 @@ calculator_off:
 list:
 	# control structure consists of
 	# a pointer to the first node
-	li a7, 9 # instruction 9: allocate memory on heap
+	li a7, 9 # syscall code 9: allocate memory on heap
 	li a0, 4 # size to be allocated - 1 pointer = 4 bytes
 	ecall # syscall to allocate memory on the heap
 
@@ -157,7 +159,7 @@ list_push:
 
 	# allocates memory in heap 
 	# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
-	li a7, 9 # instruction 9: allocate memory on heap
+	li a7, 9 # syscall code 9: allocate memory on heap
 	li a0, 8 # size to be allocated: 8 bytes
 	ecall # syscall to allocate memory on the heap
 	# OBS: a0 now holds the address to the new allocated space in the heap
@@ -193,11 +195,11 @@ loop_list_print:
 	# OBS: t1 is saving the adress of the nodes
 	
 	# print current value
-	li a7, 1 # instruction 1: print int
+	li a7, 1 # syscall code 1: print int
 	ecall # syscall to print value in a0
 	
 	# separate numbers by space
-	li a7, 4 # instruction 4: print a string
+	li a7, 4 # syscall code 4: print a string
 	la a0, space # load 1st byte adress
 	ecall # syscall to print string
 	
@@ -212,10 +214,10 @@ loop_list_print_exit:
 # in case of a list_null
 error_null_list:
 	# print error message
-	li a7, 4 # instruction 4: print a string
+	li a7, 4 # syscall code 4: print a string
 	la a0, msg_null_list # load 1st byte of msg in a0
 	ecall # syscall to print message
 	
 	# end programn
-	li a7, 10 # instruction 10: end programn
+	li a7, 10 # syscall code 10: end programn
 	ecall # syscall to end programn
