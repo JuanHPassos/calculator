@@ -13,6 +13,10 @@
 functionalities:
 	# sum, sub, mul, div, undo, finish 
 	.ascii "+", "-", "*", "/", "u", "f"
+	
+	# Error messages
+msg_null_list:
+	.asciz "Error: null list"
 
 	.text # code
 	.align 2 # instructions aligned by word
@@ -30,7 +34,7 @@ main:
 	# create list 
 	jal list # returns the address of the list in a0
 	mv s6, a0 # s6 = pointer to list
-	
+	 
 	# TODO: read 1st input
 
 # Function that creates a list
@@ -70,4 +74,46 @@ list_push:
 # print -1 if list dont exist
 # print elements in the list
 # a0: list adress
-test:	
+list_print:
+	# copying the list address to t0 
+	mv t0, a0 # t0 now holds the first byte of the list address
+
+	# catch possible error(dont try to acess null pointer)
+	beqz t0, error_null_list
+	
+	# get top to iterate through the list
+	lw t1, 0(t0) # loading to t1 the address of the first/top node on the list
+
+
+loop_list_print:
+	# if current node dont exist(t1 == 0), break
+	beqz t1, loop_list_print_exit 
+
+	# read data of the current node
+	lw a0, 4(t1) # load value
+	lw t1, 0(t1) # load adress to next node
+	# OBS: t1 is saving the adress of the nodes
+	
+	# print current value
+	li a7, 1 # instruction 1: print int
+	ecall # syscall to print value in a0
+	
+	# continue to print values
+	j loop_list_print
+	
+loop_list_print_exit:
+	# end function
+	jr ra # jump to return address
+	
+
+# Function to print error message
+# in case of a list_null
+error_null_list:
+	# print error message
+	li a7, 4 # instruction 4: print a string
+	la a0, msg_null_list # load 1º byte of msg in a0
+	ecall # syscall to print message
+	
+	# end programn
+	li a7, 10 # instruction 10: end programn
+	ecall # syscall to end programn
