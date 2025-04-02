@@ -27,8 +27,8 @@ main:
 	lb s4, 4(t0) # s4 = 'u'
 	lb s5, 4(t0) # s5 = 'f'
 	
-	# create list (returns the address of the list in a0)
-	jal list
+	# create list 
+	jal list # returns the address of the list in a0
 	mv s6, a0 # s6 = pointer to list
 	
 	# TODO: read 1st input
@@ -49,9 +49,11 @@ list:
 # a0: list address
 # a1: value to be saved in node (int)
 list_push:
-	mv t0, a0 # copying the list address to t0 (t0 now holds the first byte of the list address)
+	# copying the list address to t0 
+	mv t0, a0 # t0 now holds the first byte of the list address
 
-	# allocates memory in heap (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
+	# allocates memory in heap 
+	# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
 	li a7, 9 # instruction 9: allocate memory on heap
 	li a0, 8 # size to be allocated: 8 bytes
 	ecall # syscall to allocate memory on the heap
@@ -64,9 +66,8 @@ list_push:
 
 	jr ra # jump to return address
 
-# TODO
-# Function to test list
+# Function to print list
 # print -1 if list dont exist
 # print elements in the list
 # a0: list adress
-test:
+test:	
