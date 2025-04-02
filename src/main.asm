@@ -9,11 +9,6 @@
 
 	.data # stores data in RAM
 	.align 0 # aligns data by byte
-	# defines character of each functionality
-functionalities:
-	# sum, sub, mul, div, undo, finish 
-	.ascii "+", "-", "*", "/", "u", "f"
-	
 	# Error messages
 msg_null_list:
 	.asciz "Error: null list"
@@ -27,13 +22,12 @@ space:
 	.globl main # sets main as program start
 main:
 	# defines registers to store functionalities (s0 - s5)
-	la t0, functionalities # loads 1st byte address 
-	lb s0, 0(t0) # s0 = '+'
-	lb s1, 1(t0) # s1 = '-'
-	lb s2, 2(t0) # s2 = '*'
-	lb s3, 3(t0) # s3 = '/'
-	lb s4, 4(t0) # s4 = 'u'
-	lb s5, 5(t0) # s5 = 'f'
+	li s0, '+'    # s0 = ASCII of '+'
+    	li s1, '-'    # s1 = ASCII of '-'
+    	li s2, '*'    # s2 = ASCII of '*'
+    	li s3, '/'    # s3 = ASCII of '/'
+    	li s4, 'u'    # s4 = ASCII of 'u'
+    	li s5, 'f'    # s5 = ASCII of 'f'
 	
 	# create list 
 	jal list # returns the address of the list in a0
