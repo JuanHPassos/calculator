@@ -55,6 +55,13 @@ calculator_on:
 	ecall # syscall to read(store in a0)
 	mv s7, a0 # s7 = a0(save data input)
 	
+	# clean buffer
+	# input: char\n, obs: \n comes to the enter
+	# so is necessary do 2 reads:
+	# one to store char
+	# and other to remove \n from buffer
+	ecall 
+	
 	# read number to be operated
 	li a7, 5 # instruction 5: read int
 	ecall # syscall to read(store in a0)
