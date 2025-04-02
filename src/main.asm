@@ -33,13 +33,104 @@ main:
 	lb s2, 2(t0) # s2 = '*'
 	lb s3, 3(t0) # s3 = '/'
 	lb s4, 4(t0) # s4 = 'u'
-	lb s5, 4(t0) # s5 = 'f'
+	lb s5, 5(t0) # s5 = 'f'
 	
 	# create list 
 	jal list # returns the address of the list in a0
 	mv s6, a0 # s6 = pointer to list
 		 	 	 	 
-	# TODO: read 1st input
+	# read 1st input
+	li a7, 5 # instruction 5: read int
+	ecall # syscall to read int(store in a0)
+	
+	# insert this input int list 
+	# to avoid repeat code
+	mv a1, a0 # move input to a1
+	mv a0, s6 # move list adress a0
+	jal list_push # add value(int) in the list
+	
+calculator_on:
+	# read code funcionality
+	li a7, 12 # instruction 12: read char
+	ecall # syscall to read(store in a0)
+	mv s7, a0 # s7 = a0(save data input)
+	
+	# read number to be operated
+	li a7, 5 # instruction 5: read int
+	ecall # syscall to read(store in a0)
+	mv s8, a0 # s8 = a0(save data input)
+	
+	# begin switch case
+	beq s7, s0, case_sum # s7 = '+'
+	beq s7, s1, case_sub  # s7 = '-'
+	beq s7, s2, case_mul  # s7 = '*'
+	beq s7, s3, case_div  # s7 = '/'
+	beq s7, s4, case_undo # s7 = 'u'
+	beq s7, s5, case_finish # s7 = 'f'
+	# default case
+	j invalid_input
+		
+case_sum:
+	# TODO
+	# Get the top of the list
+	# do the sum between the two numbers
+	# two numbers = top of the list and input(s8)
+	# check overflow, throw error if necessary
+	# store result in the list
+	
+	j calculator_on
+case_sub:
+	# TODO
+	# Get the top of the list
+	# do the sub between the two numbers
+	# two numbers = top of the list and input(s8)
+	# check overflow, throw error if necessary
+	# store result in the list
+
+	j calculator_on
+case_mul:
+	# TODO
+	# Get the top of the list
+	# do the mul between the two numbers
+	# two numbers = top of the list and input(s8)
+	# check overflow, throw error if necessary
+	# store result in the list
+
+	j calculator_on
+case_div:
+	# TODO
+	# Get the top of the list
+	# check div by 0, throw error if necessary
+	# do the div between the two numbers
+	# two numbers = top of the list and input(s8)
+	# check overflow, throw error if necessary
+	# store result in the list
+
+	j calculator_on
+case_undo:
+	# TODO
+	# check if list is empty, if is necessary
+	# throw error, "There is no last operation"
+	# and continue loop
+	# otherwise, remove top of the list
+
+	j calculator_on
+case_finish:	
+	# ends calculator run
+	j calculator_off
+invalid_input:
+	# TODO
+	# print "Invalid input" and continue loop
+	j calculator_on
+
+calculator_off:
+	# TODO
+	# maybe free memory
+	# OBS: i dont know if is necessary
+
+	# end programn
+	li a7, 10 # instruction 10: end programn
+	ecall # syscall to end programn
 
 # Function that creates a list
 # a0: returns address from list
@@ -106,7 +197,7 @@ loop_list_print:
 	
 	# separate numbers by space
 	li a7, 4 # instruction 4: print a string
-	la a0, space # load 1º byte adress
+	la a0, space # load 1st byte adress
 	ecall # syscall to print string
 	
 	# continue to print values
@@ -121,7 +212,7 @@ loop_list_print_exit:
 error_null_list:
 	# print error message
 	li a7, 4 # instruction 4: print a string
-	la a0, msg_null_list # load 1º byte of msg in a0
+	la a0, msg_null_list # load 1st byte of msg in a0
 	ecall # syscall to print message
 	
 	# end programn
