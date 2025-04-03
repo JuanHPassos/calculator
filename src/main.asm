@@ -9,77 +9,76 @@
 # s7 = operation selected
 # s8 = number inputted
 
-	.data # stores data in RAM
-	.align 0 # aligns data by byte
-	# Error messages
-msg_null_list:
+	.data 			# Stores data in RAM
+	.align 0 		# Aligns data by byte
+			
+msg_null_list:			# Error messages
 	.asciz "Error: null list"
 	
-	# strings to format output
-space:
+			
+space:				# Strings to format output
 	.asciz " "
 
-	.text # code
-	.align 2 # instructions aligned by word
-	.globl main # sets main as program start
+	.text 			# Code
+	.align 2 		# Instructions aligned by word (32 bits)
+	.globl main 		# Sets main as program start
 main:
-	# defines registers to store operations (s0 - s5)
-	li s0, '+'    # s0 = ASCII of '+'
-    	li s1, '-'    # s1 = ASCII of '-'
-    	li s2, '*'    # s2 = ASCII of '*'
-    	li s3, '/'    # s3 = ASCII of '/'
-    	li s4, 'u'    # s4 = ASCII of 'u'
-    	li s5, 'f'    # s5 = ASCII of 'f'
+				# Defines registers to store operations (s0 - s5)
+	li s0, '+'    		# s0 = ASCII of '+'
+    	li s1, '-'    		# s1 = ASCII of '-'
+    	li s2, '*'    		# s2 = ASCII of '*'
+    	li s3, '/'    		# s3 = ASCII of '/'
+    	li s4, 'u'    		# s4 = ASCII of 'u'
+    	li s5, 'f'    		# s5 = ASCII of 'f'
 	
-	# create list 
-	jal list # returns the address of the list in a0
-	mv s6, a0 # s6 = pointer to list
+				# Create list 
+	jal list 		# Returns the address of the list in a0
+	mv s6, a0 		# s6 = pointer to list
 		 	 	 	 
-	# read 1st input
-	li a7, 5 # syscall code 5: read int
-	ecall # syscall to read int (store in a0)
+				# Read 1st input
+	li a7, 5 		# Syscall code 5: read int
+	ecall 			# Syscall to read int (store in a0)
 	
-	# insert first number into list 
-	# to avoid repeated code
-	mv a1, a0 # move input to a1
-	mv a0, s6 # move list adress a0
-	jal list_push # add number (int) to the list
+				# Insert first number into list to avoid repeated code
+	mv a1, a0 		# Move input to a1
+	mv a0, s6 		# Move list adress a0
+	jal list_push 		# Add number (int) to the list
 	
 calculator_on:
-	# read code operation
-	li a7, 12 # syscall code 12: read char
-	ecall # syscall to read  (stored in a0)
-	mv s7, a0 # s7 = a0 (operation)
+				# Read code operation
+	li a7, 12 		# Syscall code 12: read char
+	ecall 			# Syscall to read  (stored in a0)
+	mv s7, a0 		# s7 = a0 (operation)
 	
-	# clean buffer
-	# input: char\n, obs: \n comes after the enter
-	# so it is necessary to do 2 reads:
-	# one to store char
-	# and another to remove \n from buffer
+# Clean buffer
+# Input: char\n, obs: \n comes after the enter
+# So it is necessary to do 2 reads:
+# One to store char
+# And another to remove \n from buffer
 	ecall
 
-	mv a0, s6 # a0 = list address
+	mv a0, s6 		# a0 = list address
 
-	# switch case for undo or finish operations
-	beq s7, s4, case_undo # s7 = 'u'
+				# Switch case for undo or finish operations
+	beq s7, s4, case_undo 	# s7 = 'u'
 	beq s7, s5, case_finish # s7 = 'f'
 	
-	# read number to be operated
-	li a7, 5 # syscall code 5: read int
-	ecall # syscall to read(store in a0)
-	mv s8, a0 # s8 = a0(save data input)
+				# Read number to be operated
+	li a7, 5 		# Syscall code 5: read int
+	ecall 			# Syscall to read(store in a0)
+	mv s8, a0 		# s8 = a0(save data input)
 
-	mv a0, s6 # a0 = list address
-	mv a1, s8 # a1 = inputted number
+	mv a0, s6 		# a0 = list address
+	mv a1, s8 		# a1 = inputted number
 	
-	# switch case for operations with number inputted
-	beq s7, s0, case_sum # s7 = '+'
-	beq s7, s1, case_sub  # s7 = '-'
-	beq s7, s2, case_mul  # s7 = '*'
-	beq s7, s3, case_div  # s7 = '/'
+				# Switch case for operations with number inputted
+	beq s7, s0, case_sum 	# s7 = '+'
+	beq s7, s1, case_sub  	# s7 = '-'
+	beq s7, s2, case_mul  	# s7 = '*'
+	beq s7, s3, case_div  	# s7 = '/'
 
-	# default case
-	j invalid_input
+				
+	j invalid_input		# Default case
 
 # Function that sums the inputted number 
 # and the number stored on top of the list,
@@ -87,14 +86,13 @@ calculator_on:
 # a0: list address
 # a1: inputted number
 case_sum:
-	lw t0, 0(a0) # t0 = address to top node
-	lw t0, 4(t0) # t0 = top node number
-	add a1, a1, t0 # a1 = top node number + inputted number
+	lw t0, 0(a0) 		# t0 = address to top node
+	lw t0, 4(t0) 		# t0 = top node number
+	add a1, a1, t0 		# a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
-	jal list_push # creates new node with current list address
-				  # and the result of the sum
+	jal list_push 		# Creates new node with current list address and the result of the sum
 	
 	j calculator_on
 
@@ -104,14 +102,13 @@ case_sum:
 # a0: list address
 # a1: inputted number
 case_sub:
-	lw t0, 0(a0) # t0 = address to top node
-	lw t0, 4(t0) # t0 = top node number
-	sub a1, t0, a1 # a1 = top node number + inputted number
+	lw t0, 0(a0) 		# t0 = address to top node
+	lw t0, 4(t0) 		# t0 = top node number
+	sub a1, t0, a1 		# a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
-	jal list_push # creates new node with current list address
-				  # and the result of the sum
+	jal list_push 		# Creates new node with current list address and the result of the sum
 
 	j calculator_on
 
@@ -121,14 +118,13 @@ case_sub:
 # a0: list address
 # a1: inputted number
 case_mul:
-	lw t0, 0(a0) # t0 = address to top node
-	lw t0, 4(t0) # t0 = top node number
-	mul a1, a1, t0 # a1 = top node number + inputted number
+	lw t0, 0(a0) 		# t0 = address to top node
+	lw t0, 4(t0) 		# t0 = top node number
+	mul a1, a1, t0 		# a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
-	jal list_push # creates new node with current list address
-				  # and the result of the sum
+	jal list_push 		# Creates new node with current list address and the result of the sum
 
 	j calculator_on
 
@@ -144,10 +140,10 @@ case_div:
 	
 	# TODO: jal overflow
 
-	jal list_push # creates new node with current list address
-				  # and the result of the sum
+	jal list_push 		# Creates new node with current list address and the result of the sum
 
 	j calculator_on
+
 case_undo:
 	# TODO
 	# check if list is empty, if necessary
@@ -156,9 +152,11 @@ case_undo:
 	# otherwise, remove top of the list
 
 	j calculator_on
+	
+# Ends calculator run
 case_finish:	
-	# ends calculator run
 	j calculator_off
+
 invalid_input:
 	# TODO
 	# print "Invalid input" and continue loop
@@ -169,43 +167,42 @@ calculator_off:
 	# maybe free memory
 	# OBS: i dont know if it is necessary
 
-	# end programn
-	li a7, 10 # syscall code 10: end programn
-	ecall # syscall to end programn
+				# End programn
+	li a7, 10 		# Syscall code 10: end programn
+	ecall 			# Syscall to end programn
 
 # Function that creates a list
 # a0: returns address of list
 list:
-	# control structure consists of
-	# a pointer to the first node
-	li a7, 9 # syscall code 9: allocate memory on heap
-	li a0, 4 # size to be allocated = 4 bytes
-	ecall # syscall to allocate memory on the heap
+				# Control structure consists of a pointer to the first node
+	li a7, 9 		# Syscall code 9: allocate memory on heap
+	li a0, 4 		# Size to be allocated = 4 bytes
+	ecall 			# Syscall to allocate memory on the heap
 
-	sw zero, 0(a0) # set pointer to NULL(0)
-	jr ra # jump to return address
+	sw zero, 0(a0) 		# Set pointer to NULL(0)
+	jr ra 			# Jump to return address
 
 # Function that inserts an element into the list
 # a0: list address
 # a1: value to be saved in node (int)
 list_push:
-	# copying the list address to t0 
-	mv t0, a0 # t0 now holds the first byte of the list address
+				# Copying the list address to t0 
+	mv t0, a0 		# t0 now holds the first byte of the list address
 	
-	# catch possible error(dont try to acess null pointer)
-	beqz t0, error_null_list # t0 = 0, list dont exist(null pointer)
+				# Catch possible error(dont try to acess null pointer)
+	beqz t0, error_null_list# t0 = 0, list dont exist(null pointer)
 
-	# allocates memory in heap 
-	# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
-	li a7, 9 # syscall code 9: allocate memory on heap
-	li a0, 8 # size to be allocated: 8 bytes
-	ecall # syscall to allocate memory on the heap
-	# OBS: a0 now holds the address to the new allocated space in the heap
+				# Allocates memory in heap 
+				# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
+	li a7, 9 		# Syscall code 9: allocate memory on heap
+	li a0, 8 		# Size to be allocated: 8 bytes
+	ecall 			# Syscall to allocate memory on the heap
+				# OBS: a0 now holds the address to the new allocated space in the heap
 
-	lw t1, 0(t0) # loading to t1 the address of the first/top node on the list
-	sw t1, 0(a0) # storing the address of the first/top node on the list into the new node
-	sw a1, 4(a0) # storing the value into the new node
-	sw a0, 0(t0) # making the new node the first/top node of the list
+	lw t1, 0(t0) 		# Loading to t1 the address of the first/top node on the list
+	sw t1, 0(a0) 		# Storing the address of the first/top node on the list into the new node
+	sw a1, 4(a0) 		# Storing the value into the new node
+	sw a0, 0(t0) 		# Making the new node the first/top node of the list
 
 	jr ra # jump to return address
 
@@ -214,48 +211,46 @@ list_push:
 # print elements in the list
 # a0: list adress
 list_print:
-	# copying the list address to t0 
-	mv t0, a0 # t0 now holds the first byte of the list address
+				# Copying the list address to t0 
+	mv t0, a0 		# t0 now holds the first byte of the list address
 
-	# catch possible error(dont try to acess null pointer)
-	beqz t0, error_null_list # t0 = 0, list dont exist(null pointer)
+				# Catch possible error(dont try to acess null pointer)
+	beqz t0, error_null_list# t0 = 0, list dont exist(null pointer)
 	
-	# get top to iterate through the list
-	lw t1, 0(t0) # loading to t1 the address of the first/top node on the list
+				# Get top to iterate through the list
+	lw t1, 0(t0) 		# Loading to t1 the address of the first/top node on the list
 
 loop_list_print:
-	# if current node dont exist(t1 == 0), break
+				# If current node dont exist(t1 == 0), break
 	beqz t1, loop_list_print_exit 
 
-	# read data of the current node
-	lw a0, 4(t1) # load value
-	lw t1, 0(t1) # load adress to next node
-	# OBS: t1 is saving the adress of the nodes
+				# Read data of the current node
+	lw a0, 4(t1) 		# Load value
+	lw t1, 0(t1)		# Load adress to next node
+				# OBS: t1 is saving the adress of the nodes
 	
-	# print current value
-	li a7, 1 # syscall code 1: print int
-	ecall # syscall to print value in a0
+				# Print current value
+	li a7, 1		# Syscall code 1: print int
+	ecall 			# Syscall to print value in a0
 	
-	# separate numbers by space
-	li a7, 4 # syscall code 4: print a string
-	la a0, space # load 1st byte adress
-	ecall # syscall to print string
+				# Separate numbers by space
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, space 		# Load 1st byte adress
+	ecall 			# Syscall to print string
 	
-	# continue to print values
-	j loop_list_print
+	j loop_list_print	# Continue to print values
 	
-loop_list_print_exit:
-	# end function
-	jr ra # jump to return address
+loop_list_print_exit:		# End function
+	jr ra 			# Jump to return address
 
 # Function to print error message
 # in case of a list_null
 error_null_list:
-	# print error message
-	li a7, 4 # syscall code 4: print a string
-	la a0, msg_null_list # load 1st byte of msg in a0
-	ecall # syscall to print message
+				# Print error message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, msg_null_list 	# Load 1st byte of msg in a0
+	ecall 			# Syscall to print message
 	
-	# end programn
-	li a7, 10 # syscall code 10: end programn
-	ecall # syscall to end programn
+				# End programn
+	li a7, 10 		# Syscall code 10: end programn
+	ecall 			# Syscall to end programn
