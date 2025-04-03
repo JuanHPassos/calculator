@@ -24,6 +24,9 @@ breakline:
 	
 result:
 	.asciz "Result = "
+	
+history_of_res:
+	.asciz "History of results = "
 
 	.text 			# Code
 	.align 2 		# Instructions aligned by word (32 bits)
@@ -177,8 +180,17 @@ case_undo:
 	j calculator_on
 	
 # Ends calculator run
-case_finish:	
-	j calculator_off
+case_finish:
+	mv t0, a0		# t0 = address of list
+
+	li a7, 4		# Syscall 4: print string
+	la a0, history_of_res	# Output message
+	ecall			# Syscall
+	
+	mv a0, t0		# a0 = address of list
+	jal list_print		# Print list elements (numbers)
+
+	j calculator_off	# Jump to calculator_off
 
 invalid_input:
 	# TODO
