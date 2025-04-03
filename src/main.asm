@@ -21,6 +21,9 @@ space:
 	
 breakline:
 	.asciz "\n"
+	
+result:
+	.asciz "Result = "
 
 	.text 			# Code
 	.align 2 		# Instructions aligned by word (32 bits)
@@ -97,6 +100,11 @@ case_sum:
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
+				# Output message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, result		# Load 1st byte adress
+	ecall 			# Syscall to print string
+	
 	li a7, 1		# Syscall 10: print int
 	mv a0, a1		# Parameter: a0 (result of sum)
 	ecall			# Syscall
@@ -121,6 +129,11 @@ case_sub:
 	# TODO: jal overflow
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
+	
+				# Output message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, result		# Load 1st byte adress
+	ecall 			# Syscall to print string
 	
 	li a7, 1		# Syscall 10: print int
 	mv a0, a1		# Parameter: a0 (result of sum)
@@ -147,6 +160,11 @@ case_mul:
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
+				# Output message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, result		# Load 1st byte adress
+	ecall 			# Syscall to print string
+	
 	li a7, 1		# Syscall 10: print int
 	mv a0, a1		# Parameter: a0 (result of sum)
 	ecall			# Syscall
@@ -171,6 +189,11 @@ case_div:
 	# TODO: jal overflow
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
+	
+				# Output message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, result		# Load 1st byte adress
+	ecall 			# Syscall to print string
 	
 	li a7, 1		# Syscall 10: print int
 	mv a0, a1		# Parameter: a0 (result of sum)
