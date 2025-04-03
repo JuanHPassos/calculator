@@ -15,9 +15,12 @@
 msg_null_list:			# Error messages
 	.asciz "Error: null list"
 	
-			
-space:				# Strings to format output
+				# Strings to format output
+space:				
 	.asciz " "
+	
+breakline:
+	.asciz "\n"
 
 	.text 			# Code
 	.align 2 		# Instructions aligned by word (32 bits)
@@ -94,6 +97,15 @@ case_sum:
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
+	li a7, 1		# Syscall 10: print int
+	mv a0, a1		# Parameter: a0 (result of sum)
+	ecall			# Syscall
+	
+				# Separate numbers by \n
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, breakline	# Load 1st byte adress
+	ecall 			# Syscall to print string
+	
 	j calculator_on
 
 # Function that subtracts the inputted number 
@@ -104,11 +116,20 @@ case_sum:
 case_sub:
 	lw t0, 0(a0) 		# t0 = address to top node
 	lw t0, 4(t0) 		# t0 = top node number
-	sub a1, t0, a1 		# a1 = top node number + inputted number
+	sub a1, t0, a1 		# a1 = top node number - inputted number
 	
 	# TODO: jal overflow
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
+	
+	li a7, 1		# Syscall 10: print int
+	mv a0, a1		# Parameter: a0 (result of sum)
+	ecall			# Syscall
+	
+				# Separate numbers by \n
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, breakline	# Load 1st byte adress
+	ecall 			# Syscall to print string
 
 	j calculator_on
 
@@ -120,11 +141,20 @@ case_sub:
 case_mul:
 	lw t0, 0(a0) 		# t0 = address to top node
 	lw t0, 4(t0) 		# t0 = top node number
-	mul a1, a1, t0 		# a1 = top node number + inputted number
+	mul a1, a1, t0 		# a1 = top node number * inputted number
 	
 	# TODO: jal overflow
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
+	
+	li a7, 1		# Syscall 10: print int
+	mv a0, a1		# Parameter: a0 (result of sum)
+	ecall			# Syscall
+	
+				# Separate numbers by \n
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, breakline	# Load 1st byte adress
+	ecall 			# Syscall to print string
 
 	j calculator_on
 
@@ -136,11 +166,20 @@ case_mul:
 case_div:
 	lw t0, 0(a0) # t0 = address to top node
 	lw t0, 4(t0) # t0 = top node number
-	div a1, t0, a1 # a1 = top node number + inputted number
+	div a1, t0, a1 # a1 = top node number / inputted number
 	
 	# TODO: jal overflow
 
 	jal list_push 		# Creates new node with current list address and the result of the sum
+	
+	li a7, 1		# Syscall 10: print int
+	mv a0, a1		# Parameter: a0 (result of sum)
+	ecall			# Syscall
+	
+				# Separate numbers by \n
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, breakline	# Load 1st byte adress
+	ecall 			# Syscall to print string
 
 	j calculator_on
 
