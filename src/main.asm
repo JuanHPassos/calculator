@@ -6,8 +6,8 @@
 # s4 = "u"
 # s5 = "f"
 # s6 = first byte of list address in heap
-# s7 = store code funcionality in calculator_on
-# s8 = read operation number in calculator_on
+# s7 = operation selected
+# s8 = number inputted
 
 	.data # stores data in RAM
 	.align 0 # aligns data by byte
@@ -23,7 +23,7 @@ space:
 	.align 2 # instructions aligned by word
 	.globl main # sets main as program start
 main:
-	# defines registers to store functionalities (s0 - s5)
+	# defines registers to store operations (s0 - s5)
 	li s0, '+'    # s0 = ASCII of '+'
     	li s1, '-'    # s1 = ASCII of '-'
     	li s2, '*'    # s2 = ASCII of '*'
@@ -37,25 +37,25 @@ main:
 		 	 	 	 
 	# read 1st input
 	li a7, 5 # syscall code 5: read int
-	ecall # syscall to read int(store in a0)
+	ecall # syscall to read int (store in a0)
 	
-	# insert this input int list 
-	# to avoid repeat code
+	# insert first number into list 
+	# to avoid repeated code
 	mv a1, a0 # move input to a1
 	mv a0, s6 # move list adress a0
-	jal list_push # add value(int) in the list
+	jal list_push # add number (int) to the list
 	
 calculator_on:
-	# read code funcionality
+	# read code operation
 	li a7, 12 # syscall code 12: read char
-	ecall # syscall to read(store in a0)
-	mv s7, a0 # s7 = a0(save data input)
+	ecall # syscall to read  (stored in a0)
+	mv s7, a0 # s7 = a0 (operation)
 	
 	# clean buffer
-	# input: char\n, obs: \n comes to the enter
-	# so is necessary do 2 reads:
+	# input: char\n, obs: \n comes after the enter
+	# so it is necessary to do 2 reads:
 	# one to store char
-	# and other to remove \n from buffer
+	# and another to remove \n from buffer
 	ecall
 
 	mv a0, s6 # a0 = list address
@@ -70,9 +70,9 @@ calculator_on:
 	mv s8, a0 # s8 = a0(save data input)
 
 	mv a0, s6 # a0 = list address
-	mv a1, s8 # a1 = input number
+	mv a1, s8 # a1 = inputted number
 	
-	# switch case for operations with number input
+	# switch case for operations with number inputted
 	beq s7, s0, case_sum # s7 = '+'
 	beq s7, s1, case_sub  # s7 = '-'
 	beq s7, s2, case_mul  # s7 = '*'
@@ -81,15 +81,15 @@ calculator_on:
 	# default case
 	j invalid_input
 
-# Function that sums the input number 
+# Function that sums the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
-# a1: input number
+# a1: inputted number
 case_sum:
 	lw t0, 0(a0) # t0 = address to top node
 	lw t0, 4(t0) # t0 = top node number
-	add a1, a1, t0 # a1 = top node number + input number
+	add a1, a1, t0 # a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
@@ -98,15 +98,15 @@ case_sum:
 	
 	j calculator_on
 
-# Function that subtracts the input number 
+# Function that subtracts the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
-# a1: input number
+# a1: inputted number
 case_sub:
 	lw t0, 0(a0) # t0 = address to top node
 	lw t0, 4(t0) # t0 = top node number
-	sub a1, t0, a1 # a1 = top node number + input number
+	sub a1, t0, a1 # a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
@@ -115,15 +115,15 @@ case_sub:
 
 	j calculator_on
 
-# Function that multiplies the input number 
+# Function that multiplies the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
-# a1: input number
+# a1: inputted number
 case_mul:
 	lw t0, 0(a0) # t0 = address to top node
 	lw t0, 4(t0) # t0 = top node number
-	mul a1, a1, t0 # a1 = top node number + input number
+	mul a1, a1, t0 # a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
@@ -132,15 +132,15 @@ case_mul:
 
 	j calculator_on
 
-# Function that divides the input number 
+# Function that divides the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
-# a1: input number
+# a1: inputted number
 case_div:
 	lw t0, 0(a0) # t0 = address to top node
 	lw t0, 4(t0) # t0 = top node number
-	div a1, t0, a1 # a1 = top node number + input number
+	div a1, t0, a1 # a1 = top node number + inputted number
 	
 	# TODO: jal overflow
 
@@ -150,7 +150,7 @@ case_div:
 	j calculator_on
 case_undo:
 	# TODO
-	# check if list is empty, if is necessary
+	# check if list is empty, if necessary
 	# throw error, "There is no last operation"
 	# and continue loop
 	# otherwise, remove top of the list
@@ -167,19 +167,19 @@ invalid_input:
 calculator_off:
 	# TODO
 	# maybe free memory
-	# OBS: i dont know if is necessary
+	# OBS: i dont know if it is necessary
 
 	# end programn
 	li a7, 10 # syscall code 10: end programn
 	ecall # syscall to end programn
 
 # Function that creates a list
-# a0: returns address from list
+# a0: returns address of list
 list:
 	# control structure consists of
 	# a pointer to the first node
 	li a7, 9 # syscall code 9: allocate memory on heap
-	li a0, 4 # size to be allocated - 1 pointer = 4 bytes
+	li a0, 4 # size to be allocated = 4 bytes
 	ecall # syscall to allocate memory on the heap
 
 	sw zero, 0(a0) # set pointer to NULL(0)
