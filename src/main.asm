@@ -97,7 +97,7 @@ calculator_on:
 # a1: inputted number
 case_sum:
 	mv t2, a0		# t2 = list address
-	jal list_get_top	# a0 = top node number
+	jal list_top		# a0 = top node number
 	add a1, a1, a0 		# a1 = top node number + inputted number
 	
 	# TODO: jal overflow
@@ -117,7 +117,7 @@ case_sum:
 # a1: inputted number
 case_sub:
 	mv t2, a0		# t2 = list address
-	jal list_get_top	# a0 = top node number
+	jal list_top		# a0 = top node number
 	sub a1, a0, a1 		# a1 = top node number - inputted number
 	
 	# TODO: jal overflow
@@ -137,7 +137,7 @@ case_sub:
 # a1: inputted number
 case_mul:
 	mv t2, a0		# t2 = list address
-	jal list_get_top	# a0 = top node number
+	jal list_top		# a0 = top node number
 	mul a1, a1, a0 		# a1 = top node number * inputted number
 	
 	# TODO: jal overflow
@@ -158,7 +158,7 @@ case_mul:
 # a1: inputted number
 case_div:
 	mv t2, a0		# t2 = list address
-	jal list_get_top	# a0 = top node number
+	jal list_top		# a0 = top node number
 	div a1, a0, a1 		# a1 = top node number / inputted number
 	
 	# TODO: jal overflow
@@ -295,7 +295,7 @@ error_null_list:
 # of the list
 # a0: address of list
 # return: a0, number on top node of the list
-list_get_top:
+list_top:
 	lw t0, 0(a0) 		# t0 = address to top node
 	lw t1, 4(t0) 		# t1 = top node number
 	mv a0, t1		# a0 = top node number
