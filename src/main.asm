@@ -12,10 +12,11 @@
 	.data 			# Stores data in RAM
 	.align 0 		# Aligns data by byte
 			
-msg_null_list:			# Error messages
+# Error messages
+msg_null_list:			
 	.asciz "Error: null list"
 	
-				# Strings to format output
+# Strings to format output
 space:				
 	.asciz " "
 	
@@ -32,7 +33,7 @@ history_of_res:
 	.align 2 		# Instructions aligned by word (32 bits)
 	.globl main 		# Sets main as program start
 main:
-				# Defines registers to store operations (s0 - s5)
+	# Defines registers to store operations (s0 - s5)
 	li s0, '+'    		# s0 = ASCII of '+'
     	li s1, '-'    		# s1 = ASCII of '-'
     	li s2, '*'    		# s2 = ASCII of '*'
@@ -40,39 +41,39 @@ main:
     	li s4, 'u'    		# s4 = ASCII of 'u'
     	li s5, 'f'    		# s5 = ASCII of 'f'
 	
-				# Create list 
+	# Create list 
 	jal list 		# Returns the address of the list in a0
 	mv s6, a0 		# s6 = pointer to list
 		 	 	 	 
-				# Read 1st input
+	# Read 1st input
 	li a7, 5 		# Syscall code 5: read int
 	ecall 			# Syscall to read int (store in a0)
 	
-				# Insert first number into list to avoid repeated code
+	# Insert first number into list to avoid repeated code
 	mv a1, a0 		# Move input to a1
 	mv a0, s6 		# Move list adress a0
 	jal list_push 		# Add number (int) to the list
 	
 calculator_on:
-				# Read code operation
+	# Read code operation
 	li a7, 12 		# Syscall code 12: read char
 	ecall 			# Syscall to read  (stored in a0)
 	mv s7, a0 		# s7 = a0 (operation)
 	
-# Clean buffer
-# Input: char\n, obs: \n comes after the enter
-# So it is necessary to do 2 reads:
-# One to store char
-# And another to remove \n from buffer
+	# Clean buffer
+	# Input: char\n, obs: \n comes after the enter
+	# So it is necessary to do 2 reads:
+	# One to store char
+	# And another to remove \n from buffer
 	ecall
 
 	mv a0, s6 		# a0 = list address
 
-				# Switch case for undo or finish operations
+	# Switch case for undo or finish operations
 	beq s7, s4, case_undo 	# s7 = 'u'
 	beq s7, s5, case_finish # s7 = 'f'
 	
-				# Read number to be operated
+	# Read number to be operated
 	li a7, 5 		# Syscall code 5: read int
 	ecall 			# Syscall to read(store in a0)
 	mv s8, a0 		# s8 = a0(save data input)
@@ -80,7 +81,7 @@ calculator_on:
 	mv a0, s6 		# a0 = list address
 	mv a1, s8 		# a1 = inputted number
 	
-				# Switch case for operations with number inputted
+	# Switch case for operations with number inputted
 	beq s7, s0, case_sum 	# s7 = '+'
 	beq s7, s1, case_sub  	# s7 = '-'
 	beq s7, s2, case_mul  	# s7 = '*'
@@ -89,7 +90,7 @@ calculator_on:
 				
 	j invalid_input		# Default case
 
-# Function that sums the inputted number 
+# Case that sums the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
@@ -109,7 +110,7 @@ case_sum:
 	
 	j calculator_on
 
-# Function that subtracts the inputted number 
+# Case that subtracts the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
@@ -129,7 +130,7 @@ case_sub:
 
 	j calculator_on
 
-# Function that multiplies the inputted number 
+# Case that multiplies the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
@@ -150,7 +151,7 @@ case_mul:
 
 	j calculator_on
 
-# Function that divides the inputted number 
+# Case that divides the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
 # a0: list address
