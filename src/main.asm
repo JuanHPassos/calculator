@@ -97,32 +97,55 @@ case_sum:
 				  # and the result of the sum
 	
 	j calculator_on
+
+# Function that subtracts the input number 
+# and the number stored on top of the list,
+# and stores the result as the new top
+# a0: list address
+# a1: input number
 case_sub:
-	# TODO
-	# Get the top of the list
-	# do the sub between the two numbers
-	# two numbers = top of the list and input(s8)
-	# check overflow, throw error if necessary
-	# store result in the list
+	lw t0, 0(a0) # t0 = address to top node
+	lw t0, 4(t0) # t0 = top node number
+	sub a1, t0, a1 # a1 = top node number + input number
+	
+	# TODO: jal overflow
+
+	jal list_push # creates new node with current list address
+				  # and the result of the sum
 
 	j calculator_on
+
+# Function that multiplies the input number 
+# and the number stored on top of the list,
+# and stores the result as the new top
+# a0: list address
+# a1: input number
 case_mul:
-	# TODO
-	# Get the top of the list
-	# do the mul between the two numbers
-	# two numbers = top of the list and input(s8)
-	# check overflow, throw error if necessary
-	# store result in the list
+	lw t0, 0(a0) # t0 = address to top node
+	lw t0, 4(t0) # t0 = top node number
+	mul a1, a1, t0 # a1 = top node number + input number
+	
+	# TODO: jal overflow
+
+	jal list_push # creates new node with current list address
+				  # and the result of the sum
 
 	j calculator_on
+
+# Function that divides the input number 
+# and the number stored on top of the list,
+# and stores the result as the new top
+# a0: list address
+# a1: input number
 case_div:
-	# TODO
-	# Get the top of the list
-	# check div by 0, throw error if necessary
-	# do the div between the two numbers
-	# two numbers = top of the list and input(s8)
-	# check overflow, throw error if necessary
-	# store result in the list
+	lw t0, 0(a0) # t0 = address to top node
+	lw t0, 4(t0) # t0 = top node number
+	div a1, t0, a1 # a1 = top node number + input number
+	
+	# TODO: jal overflow
+
+	jal list_push # creates new node with current list address
+				  # and the result of the sum
 
 	j calculator_on
 case_undo:
