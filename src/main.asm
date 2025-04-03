@@ -101,19 +101,8 @@ case_sum:
 	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
-				# Output message
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, result		# Load 1st byte adress
-	ecall 			# Syscall to print string
-	
-	li a7, 1		# Syscall 10: print int
-	mv a0, a1		# Parameter: a0 (result of sum)
-	ecall			# Syscall
-	
-				# Separate numbers by \n
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, breakline	# Load 1st byte adress
-	ecall 			# Syscall to print string
+	mv a0, a1		# a0 = result of operation
+	jal print_result	# Prints result of operation
 	
 	j calculator_on
 
@@ -132,19 +121,8 @@ case_sub:
 	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
-				# Output message
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, result		# Load 1st byte adress
-	ecall 			# Syscall to print string
-	
-	li a7, 1		# Syscall 10: print int
-	mv a0, a1		# Parameter: a0 (result of sum)
-	ecall			# Syscall
-	
-				# Separate numbers by \n
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, breakline	# Load 1st byte adress
-	ecall 			# Syscall to print string
+	mv a0, a1		# a0 = result of operation
+	jal print_result	# Prints result of operation
 
 	j calculator_on
 
@@ -163,19 +141,9 @@ case_mul:
 	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
-				# Output message
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, result		# Load 1st byte adress
-	ecall 			# Syscall to print string
-	
-	li a7, 1		# Syscall 10: print int
-	mv a0, a1		# Parameter: a0 (result of sum)
-	ecall			# Syscall
-	
-				# Separate numbers by \n
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, breakline	# Load 1st byte adress
-	ecall 			# Syscall to print string
+	mv a0, a1		# a0 = result of operation
+	jal print_result	# Prints result of operation
+
 
 	j calculator_on
 
@@ -194,19 +162,8 @@ case_div:
 	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
-				# Output message
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, result		# Load 1st byte adress
-	ecall 			# Syscall to print string
-	
-	li a7, 1		# Syscall 10: print int
-	mv a0, a1		# Parameter: a0 (result of sum)
-	ecall			# Syscall
-	
-				# Separate numbers by \n
-	li a7, 4 		# Syscall code 4: print a string
-	la a0, breakline	# Load 1st byte adress
-	ecall 			# Syscall to print string
+	mv a0, a1		# a0 = result of operation
+	jal print_result	# Prints result of operation
 
 	j calculator_on
 
@@ -331,3 +288,25 @@ list_get_top:
 	mv a0, t1		# a0 = top node number
 	
 	jr ra			# Jump to return address
+	
+# Function to print results
+# after an operation
+# a0: result of operation
+print_result:
+	mv t0, a0		# t0 = result of operation
+	
+				# Output message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, result		# Load 1st byte adress
+	ecall 			# Syscall to print string
+	
+	li a7, 1		# Syscall 10: print int
+	mv a0, t0		# Parameter: t0 (result of operation)
+	ecall			# Syscall
+	
+				# Separate numbers by \n
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, breakline	# Load 1st byte adress
+	ecall 			# Syscall to print string
+	
+	jr ra
