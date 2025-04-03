@@ -92,12 +92,13 @@ calculator_on:
 # a0: list address
 # a1: inputted number
 case_sum:
-	lw t0, 0(a0) 		# t0 = address to top node
-	lw t0, 4(t0) 		# t0 = top node number
-	add a1, a1, t0 		# a1 = top node number + inputted number
+	mv t2, a0		# t2 = list address
+	jal list_get_top	# a0 = top node number
+	add a1, a1, a0 		# a1 = top node number + inputted number
 	
 	# TODO: jal overflow
-
+	
+	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
 				# Output message
@@ -122,12 +123,13 @@ case_sum:
 # a0: list address
 # a1: inputted number
 case_sub:
-	lw t0, 0(a0) 		# t0 = address to top node
-	lw t0, 4(t0) 		# t0 = top node number
-	sub a1, t0, a1 		# a1 = top node number - inputted number
+	mv t2, a0		# t2 = list address
+	jal list_get_top	# a0 = top node number
+	sub a1, a0, a1 		# a1 = top node number - inputted number
 	
 	# TODO: jal overflow
-
+	
+	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
 				# Output message
@@ -152,12 +154,13 @@ case_sub:
 # a0: list address
 # a1: inputted number
 case_mul:
-	lw t0, 0(a0) 		# t0 = address to top node
-	lw t0, 4(t0) 		# t0 = top node number
-	mul a1, a1, t0 		# a1 = top node number * inputted number
+	mv t2, a0		# t2 = list address
+	jal list_get_top	# a0 = top node number
+	mul a1, a1, a0 		# a1 = top node number * inputted number
 	
 	# TODO: jal overflow
-
+	
+	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
 				# Output message
@@ -182,12 +185,13 @@ case_mul:
 # a0: list address
 # a1: inputted number
 case_div:
-	lw t0, 0(a0) # t0 = address to top node
-	lw t0, 4(t0) # t0 = top node number
-	div a1, t0, a1 # a1 = top node number / inputted number
+	mv t2, a0		# t2 = list address
+	jal list_get_top	# a0 = top node number
+	div a1, a0, a1 		# a1 = top node number / inputted number
 	
 	# TODO: jal overflow
-
+	
+	mv a0, t2		# a0 = list address
 	jal list_push 		# Creates new node with current list address and the result of the sum
 	
 				# Output message
@@ -315,4 +319,15 @@ error_null_list:
 	
 				# End programn
 	li a7, 10 		# Syscall code 10: end programn
-	ecall 			# Syscall to end programn
+	ecall 			# Syscall to end program
+	
+# Function to get number on top
+# of the list
+# a0: address of list
+# return: a0, number on top node of the list
+list_get_top:
+	lw t0, 0(a0) 		# t0 = address to top node
+	lw t1, 4(t0) 		# t1 = top node number
+	mv a0, t1		# a0 = top node number
+	
+	jr ra			# Jump to return address
