@@ -67,8 +67,6 @@ calculator_on:
 	# And another to remove \n from buffer
 	ecall
 
-	mv a0, s6 		# a0 = list address
-
 	# Switch case for undo or finish operations
 	beq s7, s4, case_undo 	# s7 = 'u'
 	beq s7, s5, case_finish # s7 = 'f'
@@ -180,17 +178,19 @@ case_undo:
 
 	j calculator_on
 	
-# Ends calculator run
+# Print history of results 
+# and ends calculator run
 case_finish:
-	mv t0, a0		# t0 = address of list
-
+	# Prepare output to print history of results
 	li a7, 4		# Syscall 4: print string
 	la a0, history_of_res	# Output message
 	ecall			# Syscall
 	
-	mv a0, t0		# a0 = address of list
+	# Print results
+	mv a0, s6		# a0 = address of list
 	jal list_print		# Print list elements (numbers)
-
+	
+	# Finish loop
 	j calculator_off	# Jump to calculator_off
 
 invalid_input:
@@ -203,7 +203,7 @@ calculator_off:
 	# maybe free memory
 	# OBS: i dont know if it is necessary
 
-				# End programn
+	# End programn
 	li a7, 10 		# Syscall code 10: end programn
 	ecall 			# Syscall to end programn
 
@@ -242,52 +242,51 @@ list_push:
 
 	jr ra # jump to return address
 
-# Function to print list
-# print -1 if list dont exist
-# print elements in the list
+# Function to print list (-1 if list dont exist)
 # a0: list adress
 list_print:
-				# Copying the list address to t0 
+	# Copying the list address to t0 
 	mv t0, a0 		# t0 now holds the first byte of the list address
 
-				# Catch possible error(dont try to acess null pointer)
+	# Catch possible error(dont try to acess null pointer)
 	beqz t0, error_null_list# t0 = 0, list dont exist(null pointer)
 	
-				# Get top to iterate through the list
+	# Get top to iterate through the list
 	lw t1, 0(t0) 		# Loading to t1 the address of the first/top node on the list
 
 loop_list_print:
-				# If current node dont exist(t1 == 0), break
+	# If current node dont exist(t1 == 0), break
 	beqz t1, loop_list_print_exit 
 
-				# Read data of the current node
+	# Read data of the current node
 	lw a0, 4(t1) 		# Load value
 	lw t1, 0(t1)		# Load adress to next node
 				# OBS: t1 is saving the adress of the nodes
 	
-				# Print current value
+	# Print current value
 	li a7, 1		# Syscall code 1: print int
 	ecall 			# Syscall to print value in a0
 	
-				# Separate numbers by space
+	# Separate numbers by space
 	li a7, 4 		# Syscall code 4: print a string
 	la a0, space 		# Load 1st byte adress
 	ecall 			# Syscall to print string
 	
 	j loop_list_print	# Continue to print values
 	
-loop_list_print_exit:		# End function
+loop_list_print_exit:		
+	# End function
 	jr ra 			# Jump to return address
 
 # Function to print error message
 # in case of a list_null
 error_null_list:
-				# Print error message
+	# Print error message
 	li a7, 4 		# Syscall code 4: print a string
 	la a0, msg_null_list 	# Load 1st byte of msg in a0
 	ecall 			# Syscall to print message
 	
-				# End programn
+	# End programn
 	li a7, 10 		# Syscall code 10: end programn
 	ecall 			# Syscall to end program
 	
@@ -308,7 +307,7 @@ list_top:
 print_result:
 	mv t0, a0		# t0 = result of operation
 	
-				# Output message
+	# Output message
 	li a7, 4 		# Syscall code 4: print a string
 	la a0, result		# Load 1st byte adress
 	ecall 			# Syscall to print string
@@ -317,7 +316,7 @@ print_result:
 	mv a0, t0		# Parameter: t0 (result of operation)
 	ecall			# Syscall
 	
-				# Separate numbers by \n
+	# Separate numbers by \n
 	li a7, 4 		# Syscall code 4: print a string
 	la a0, breakline	# Load 1st byte adress
 	ecall 			# Syscall to print string
