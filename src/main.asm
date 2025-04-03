@@ -56,30 +56,45 @@ calculator_on:
 	# so is necessary do 2 reads:
 	# one to store char
 	# and other to remove \n from buffer
-	ecall 
+	ecall
+
+	mv a0, s6 # a0 = list address
+
+	# switch case for undo or finish operations
+	beq s7, s4, case_undo # s7 = 'u'
+	beq s7, s5, case_finish # s7 = 'f'
 	
 	# read number to be operated
 	li a7, 5 # syscall code 5: read int
 	ecall # syscall to read(store in a0)
 	mv s8, a0 # s8 = a0(save data input)
+
+	mv a0, s6 # a0 = list address
+	mv a1, s8 # a1 = input number
 	
-	# begin switch case
+	# switch case for operations with number input
 	beq s7, s0, case_sum # s7 = '+'
 	beq s7, s1, case_sub  # s7 = '-'
 	beq s7, s2, case_mul  # s7 = '*'
 	beq s7, s3, case_div  # s7 = '/'
-	beq s7, s4, case_undo # s7 = 'u'
-	beq s7, s5, case_finish # s7 = 'f'
+
 	# default case
 	j invalid_input
-		
+
+# Function that sums the input number 
+# and the number stored on top of the list,
+# and stores the result as the new top
+# a0: list address
+# a1: input number
 case_sum:
-	# TODO
-	# Get the top of the list
-	# do the sum between the two numbers
-	# two numbers = top of the list and input(s8)
-	# check overflow, throw error if necessary
-	# store result in the list
+	lw t0, 0(a0) # t0 = address to top node
+	lw t0, 4(t0) # t0 = top node number
+	add a1, a1, t0 # a1 = top node number + input number
+	
+	# TODO: jal overflow
+
+	jal list_push # creates new node with current list address
+				  # and the result of the sum
 	
 	j calculator_on
 case_sub:
