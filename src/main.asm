@@ -15,9 +15,11 @@
 			
 # Error messages
 msg_null_list:			
-	.asciz "Error: null list\n"
+	.asciz "Error: null list.\n"
 msg_div_by_zero:
-	.asciz "Error: division by zero is not allowed\n"
+	.asciz "Error: division by zero is not allowed.\n"
+msg_overflow:
+	.asciz "Error: overflow has occurred.\n"
 	
 # Strings to format output
 space:				
@@ -97,8 +99,16 @@ case_sum:
 	# Do the current operation
 	add s9, s8, a0 		# s9 = top node number(a0) + inputted number(s8)
 	
-	# TODO: jal overflow
+	# Overflow occurs when:
+	# 1. Two positive numbers are added together and the result is negative
+	# 2. Two negative numbers are added together and the result is positive
+	# Checa se ocorreu overflow
+	slti t0, a0, 0		# t0 = (a0 < 0) - is a0 neg? 1:0
+	slt t1, s9, s8		# t1 = (s8 + a0 < s8) - sum result lower result? 1:0
+	bne t0, t1, error_overflow # overflow if (a0 < 0) && (s8 + a0 >= s8)
+				#		|| (a0 >= 0) && (s8 + a0 < s8)
 	
+			
 	# Creates new node with current list address and the result of the sum
 	mv a0, s6		# a0 = s6(list address)
 	mv a1, s9		# a1 = s9(result of current operation)
@@ -308,6 +318,18 @@ loop_list_print:
 loop_list_print_exit:		
 	# End function
 	jr ra 			# Jump to return address
+
+# Function to print error message
+# in case of overflow
+error_overflow:
+	# Print error message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, msg_overflow	# Load 1st byte of msg in a0
+	ecall 			# Syscall to print message
+	
+	# End programn
+	li a7, 10 		# Syscall code 10: end programn
+	ecall 			# Syscall to end program
 
 # Function to print error message
 # in case of divide by zero
