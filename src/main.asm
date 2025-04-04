@@ -15,7 +15,9 @@
 			
 # Error messages
 msg_null_list:			
-	.asciz "Error: null list"
+	.asciz "Error: null list\n"
+msg_div_by_zero:
+	.asciz "Error: division by zero is not allowed\n"
 	
 # Strings to format output
 space:				
@@ -158,8 +160,9 @@ case_mul:
 # and the number stored on top of the list,
 # and stores the result as the new top
 case_div:
-	# TODO: check if the number is zero
-
+	# Check if the divider is zero
+	beqz s8, error_div_by_zero # Cant div by zero
+	
 	# Get number of the last operation
 	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
@@ -220,11 +223,12 @@ calculator_off:
 # Function that creates a list
 # a0: returns address of list
 list:
-				# Control structure consists of a pointer to the first node
+	# Control structure consists of a pointer to the first node
 	li a7, 9 		# Syscall code 9: allocate memory on heap
 	li a0, 4 		# Size to be allocated = 4 bytes
 	ecall 			# Syscall to allocate memory on the heap
 
+	# Ends function
 	sw zero, 0(a0) 		# Set pointer to NULL(0)
 	jr ra 			# Jump to return address
 
@@ -244,7 +248,7 @@ list_push:
 	li a7, 9 		# Syscall code 9: allocate memory on heap
 	li a0, 8 		# Size to be allocated: 8 bytes
 	ecall 			# Syscall to allocate memory on the heap
-	# OBS: a0 now holds the address to the new allocated space in the heap
+				# OBS: a0 now holds the address to the new allocated space in the heap
 
 	# Create new node, and save data(adress of next node and number)
 	lw t1, 0(t0) 		# Loading to t1 the address of the first/top node on the list
@@ -253,7 +257,21 @@ list_push:
 	sw a0, 0(t0) 		# Making the new node the first/top node of the list
 
 	jr ra # jump to return address
-
+	
+# Function to get number on top
+# of the list
+# argument: 
+# a0 ,address of list
+# return: 
+# a0, number on top node of the list
+list_top:
+	# Get the first element(number) in the list
+	lw t0, 0(a0) 		# t0 = address to top node
+	lw t1, 4(t0) 		# t1 = top node number
+	mv a0, t1		# a0 = top node number
+	
+	jr ra			# Jump to return address
+	
 # Function to print list (-1 if list dont exist)
 # argument
 # a0: list adress
@@ -292,6 +310,18 @@ loop_list_print_exit:
 	jr ra 			# Jump to return address
 
 # Function to print error message
+# in case of divide by zero
+error_div_by_zero:
+	# Print error message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, msg_div_by_zero # Load 1st byte of msg in a0
+	ecall 			# Syscall to print message
+	
+	# End programn
+	li a7, 10 		# Syscall code 10: end programn
+	ecall 			# Syscall to end program
+
+# Function to print error message
 # in case of a list_null
 error_null_list:
 	# Print error message
@@ -303,19 +333,7 @@ error_null_list:
 	li a7, 10 		# Syscall code 10: end programn
 	ecall 			# Syscall to end program
 	
-# Function to get number on top
-# of the list
-# argument: 
-# a0 ,address of list
-# return: 
-# a0, number on top node of the list
-list_top:
-	lw t0, 0(a0) 		# t0 = address to top node
-	lw t1, 4(t0) 		# t1 = top node number
-	mv a0, t1		# a0 = top node number
-	
-	jr ra			# Jump to return address
-	
+
 # Function to print results
 # after an operation
 # argument
@@ -328,6 +346,7 @@ print_result:
 	la a0, result		# Load 1st byte adress
 	ecall 			# Syscall to print string
 	
+	# Print result( int )
 	li a7, 1		# Syscall 10: print int
 	mv a0, t0		# Parameter: t0 (result of operation)
 	ecall			# Syscall
@@ -336,5 +355,5 @@ print_result:
 	li a7, 4 		# Syscall code 4: print a string
 	la a0, breakline	# Load 1st byte adress
 	ecall 			# Syscall to print string
-	
-	jr ra
+	# End function
+	jr ra	
