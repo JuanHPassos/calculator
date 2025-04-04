@@ -102,7 +102,7 @@ case_sum:
 	# Overflow occurs when:
 	# 1. Two positive numbers are added together and the result is negative
 	# 2. Two negative numbers are added together and the result is positive
-	# Checa se ocorreu overflow
+	# Check overflow
 	slti t0, a0, 0		# t0 = (a0 < 0) - is a0 neg? 1:0
 	slt t1, s9, s8		# t1 = (s8 + a0 < s8) - sum result lower result? 1:0
 	bne t0, t1, error_overflow # overflow if (a0 < 0) && (s8 + a0 >= s8)
@@ -130,7 +130,15 @@ case_sub:
 	# Do the current operation
 	sub s9, s8, a0 		# s9 = top node number(a0) - inputted number(s8)
 	
-	# TODO: jal overflow
+	# Overflow occurs when:
+	# 1. Subtracting a negative from a positivea and result is negative
+	# 2. Subtracting a positive from a negative and result is positive
+	# Check overflow
+	slti t0, a0, 0		# t0 = (a0 < 0) - is a0 neg? 1:0
+	slt t1, s8, s9        	# t1 = (s8 - a0 > s8) when a0 is negative
+                          	# or (s8 - a0 < s8) when a0 is positive
+	bne t0, t1, error_overflow # overflow if (a0 < 0) && (s8 + a0 < s8)
+				#		|| (a0 >= 0) && (s8 + a0 >= s8)
 	
 	# Creates new node with current list address and the result of the sum
 	mv a0, s6		# a0 = s6(list address)
@@ -153,7 +161,7 @@ case_mul:
 	# Do the current operation
 	mul s9, s8, a0 		# s9 = top node number(s8) * inputted number(a0)
 	
-	# TODO: jal overflow
+	# TODO: check overflow
 	
 	# Creates new node with current list address and the result of the sum
 	mv a0, s6		# a0 = s6(list address)
