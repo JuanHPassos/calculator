@@ -8,6 +8,7 @@
 # s6 = first byte of list address in heap
 # s7 = operation selected
 # s8 = number inputted
+# s9 = result of current operation
 
 	.data 			# Stores data in RAM
 	.align 0 		# Aligns data by byte
@@ -75,99 +76,108 @@ calculator_on:
 	li a7, 5 		# Syscall code 5: read int
 	ecall 			# Syscall to read(store in a0)
 	mv s8, a0 		# s8 = a0(save data input)
-
-	mv a0, s6 		# a0 = list address
-	mv a1, s8 		# a1 = inputted number
 	
 	# Switch case for operations with number inputted
 	beq s7, s0, case_sum 	# s7 = '+'
 	beq s7, s1, case_sub  	# s7 = '-'
 	beq s7, s2, case_mul  	# s7 = '*'
 	beq s7, s3, case_div  	# s7 = '/'
-
 				
 	j invalid_input		# Default case
 
-# Case that sums the inputted number 
+# Sums the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
-# a0: list address
-# a1: inputted number
 case_sum:
-	mv t2, a0		# t2 = list address
+	# Get number of the last operation
+	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
-	add a1, a1, a0 		# a1 = top node number + inputted number
+	# Do the current operation
+	add s9, s8, a0 		# s9 = top node number(a0) + inputted number(s8)
 	
 	# TODO: jal overflow
 	
-	mv a0, t2		# a0 = list address
-	jal list_push 		# Creates new node with current list address and the result of the sum
+	# Creates new node with current list address and the result of the sum
+	mv a0, s6		# a0 = s6(list address)
+	mv a1, s9		# a1 = s9(result of current operation)
+	jal list_push		# Insert s9 on the top of the list
 	
-	mv a0, a1		# a0 = result of operation
-	jal print_result	# Prints result of operation
+	# Print result of current operation
+	mv a0, s9		# a0 = s9(result of current operation)
+	jal print_result	# Call function format output result
 	
-	j calculator_on
+	j calculator_on		# Continue for more operations
 
 # Case that subtracts the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
-# a0: list address
-# a1: inputted number
 case_sub:
-	mv t2, a0		# t2 = list address
+	# Get number of the last operation
+	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
-	sub a1, a0, a1 		# a1 = top node number - inputted number
+	# Do the current operation
+	sub s9, s8, a0 		# s9 = top node number(a0) - inputted number(s8)
 	
 	# TODO: jal overflow
 	
-	mv a0, t2		# a0 = list address
-	jal list_push 		# Creates new node with current list address and the result of the sum
+	# Creates new node with current list address and the result of the sum
+	mv a0, s6		# a0 = s6(list address)
+	mv a1, s9		# a1 = s9(result of current operation)
+	jal list_push		# Insert s9 on the top of the list
 	
-	mv a0, a1		# a0 = result of operation
-	jal print_result	# Prints result of operation
+	# Print result of current operation
+	mv a0, s9		# a0 = s9(result of current operation)
+	jal print_result	# Call function format output result
 
-	j calculator_on
+	j calculator_on		# Continue for more operations
 
 # Case that multiplies the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
-# a0: list address
-# a1: inputted number
 case_mul:
-	mv t2, a0		# t2 = list address
+	# Get number of the last operation
+	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
-	mul a1, a1, a0 		# a1 = top node number * inputted number
+	# Do the current operation
+	mul s9, s8, a0 		# s9 = top node number(s8) * inputted number(a0)
 	
 	# TODO: jal overflow
 	
-	mv a0, t2		# a0 = list address
-	jal list_push 		# Creates new node with current list address and the result of the sum
+	# Creates new node with current list address and the result of the sum
+	mv a0, s6		# a0 = s6(list address)
+	mv a1, s9		# a1 = s9(result of current operation)
+	jal list_push		# Insert s9 on the top of the list
 	
-	mv a0, a1		# a0 = result of operation
-	jal print_result	# Prints result of operation
-
-
-	j calculator_on
+	# Print result of current operation
+	mv a0, s9		# a0 = s9(result of current operation)
+	jal print_result	# Call function format output result
+	
+	j calculator_on		# Continue for more operations
 
 # Case that divides the inputted number 
 # and the number stored on top of the list,
 # and stores the result as the new top
-# a0: list address
-# a1: inputted number
 case_div:
-	mv t2, a0		# t2 = list address
+	# TODO: check if the number is zero
+
+	# Get number of the last operation
+	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
-	div a1, a0, a1 		# a1 = top node number / inputted number
+	# Do the current operation
+	div s9, a0, s8 		# s9 = top node number(a0) / inputted number(s8)
 	
 	# TODO: jal overflow
 	
-	mv a0, t2		# a0 = list address
-	jal list_push 		# Creates new node with current list address and the result of the sum
+	# Creates new node with current list address and the result of the sum
+	mv a0, s6		# a0 = s6(list address)
+	mv a1, s9		# a1 = s9(result of current operation)
+	jal list_push		# Insert s9 on the top of the list
 	
-	mv a0, a1		# a0 = result of operation
-	jal print_result	# Prints result of operation
-
-	j calculator_on
+	# Print result of current operation
+	mv a0, s9		# a0 = s9(result of current operation)
+	jal print_result	# Call function format output result
+	
+	j calculator_on		# Continue for more operations
 
 case_undo:
 	# TODO
@@ -219,22 +229,24 @@ list:
 	jr ra 			# Jump to return address
 
 # Function that inserts an element into the list
+# argument
 # a0: list address
 # a1: value to be saved in node (int)
 list_push:
-				# Copying the list address to t0 
+	# Copying the list address to t0 
 	mv t0, a0 		# t0 now holds the first byte of the list address
 	
-				# Catch possible error(dont try to acess null pointer)
+	# Catch possible error(dont try to acess null pointer)
 	beqz t0, error_null_list# t0 = 0, list dont exist(null pointer)
 
-				# Allocates memory in heap 
-				# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
+	# Allocates memory in heap 
+	# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
 	li a7, 9 		# Syscall code 9: allocate memory on heap
 	li a0, 8 		# Size to be allocated: 8 bytes
 	ecall 			# Syscall to allocate memory on the heap
-				# OBS: a0 now holds the address to the new allocated space in the heap
+	# OBS: a0 now holds the address to the new allocated space in the heap
 
+	# Create new node, and save data(adress of next node and number)
 	lw t1, 0(t0) 		# Loading to t1 the address of the first/top node on the list
 	sw t1, 0(a0) 		# Storing the address of the first/top node on the list into the new node
 	sw a1, 4(a0) 		# Storing the value into the new node
@@ -243,6 +255,7 @@ list_push:
 	jr ra # jump to return address
 
 # Function to print list (-1 if list dont exist)
+# argument
 # a0: list adress
 list_print:
 	# Copying the list address to t0 
@@ -292,8 +305,10 @@ error_null_list:
 	
 # Function to get number on top
 # of the list
-# a0: address of list
-# return: a0, number on top node of the list
+# argument: 
+# a0 ,address of list
+# return: 
+# a0, number on top node of the list
 list_top:
 	lw t0, 0(a0) 		# t0 = address to top node
 	lw t1, 4(t0) 		# t1 = top node number
@@ -303,6 +318,7 @@ list_top:
 	
 # Function to print results
 # after an operation
+# argument
 # a0: result of operation
 print_result:
 	mv t0, a0		# t0 = result of operation
