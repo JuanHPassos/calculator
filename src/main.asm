@@ -200,7 +200,21 @@ case_div:
 	
 	j calculator_on		# Continue for more operations
 
+
+
+# Case that goes back to the last result
+# poping the current top node
 case_undo:
+	mv a0, s6		# a0 = s6(list address)
+	jal list_pop		# Remove tha last element
+	
+	mv a0, s6		# a0 = s6(list address)
+	jal list_top		# a0 = top node number
+	
+	jal print_result	# Call function format output result
+	
+	j calculator_on		# Continue for more operations
+	
 	# TODO
 	# check if list is empty, if necessary
 	# throw error, "There is no last operation"
@@ -275,6 +289,28 @@ list_push:
 	sw a0, 0(t0) 		# Making the new node the first/top node of the list
 
 	jr ra # jump to return address
+	
+	
+#Function that removes an element out the list
+# arguments
+# a0: list address
+# return 
+# a1: value of the element removed  
+list_pop:
+	
+	# Get the list address
+	lw t0, 0(a0)        # t0 = address of top node
+	beqz t0, error_null_list # Exit if list is empty
+    
+    	# Get the value (store in a1 for return)
+   	lw a1, 4(t0)        # a1 = value from node
+    
+    	# Update list head to next node
+	lw t1, 0(t0)        # t1 = next node address
+	sw t1, 0(a0)        # Update list head pointer
+    	
+	jr ra               # Return with value in a1
+	
 	
 # Function to get number on top
 # of the list
