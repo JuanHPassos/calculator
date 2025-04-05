@@ -49,7 +49,7 @@ main:
 	# Create list 
 	jal list 		# Returns the address of the list in a0
 	mv s6, a0 		# s6 = pointer to list
-		 	 	 	 
+		 	 	 	  	 	 	  	 	 	 
 	# Read 1st input
 	li a7, 5 		# Syscall code 5: read int
 	ecall 			# Syscall to read int (store in a0)
@@ -299,17 +299,17 @@ list_push:
 list_pop:
 	
 	# Get the list address
-	lw t0, 0(a0)        # t0 = address of top node
+	lw t0, 0(a0)        	# t0 = address of top node
 	beqz t0, error_null_list # Exit if list is empty
     
     	# Get the value (store in a1 for return)
-   	lw a1, 4(t0)        # a1 = value from node
+   	lw a1, 4(t0)        	# a1 = value from node
     
     	# Update list head to next node
-	lw t1, 0(t0)        # t1 = next node address
-	sw t1, 0(a0)        # Update list head pointer
+	lw t1, 0(t0)        	# t1 = next node address
+	sw t1, 0(a0)        	# Update list head pointer
     	
-	jr ra               # Return with value in a1
+	jr ra               	# Return with value in a1
 	
 	
 # Function to get number on top
@@ -362,6 +362,26 @@ loop_list_print:
 loop_list_print_exit:		
 	# End function
 	jr ra 			# Jump to return address
+	
+# Function to verify if the list is empty
+# argument: 
+# a0 ,address of list
+# return: 
+# a0, 1 if list if empty, otherwise 0
+list_empty:
+	# Copying the list address to t0 
+	mv t0, a0 		# t0 now holds the first byte of the list address
+	
+	# Catch possible error(dont try to acess null pointer)
+	beqz t0, error_null_list# t0 = 0, list dont exist(null pointer)
+	
+	# Get the first byte from the address of the first node
+	lw t0, 0(a0)        	# t0 = address of top node
+	
+	# if t0(adress of 1st node) = 0, list is empty
+	seqz a0, t0		# t0 == 0 ? 1:0
+	
+	jr ra               	# Return with value in a1
 
 # Function to print error message
 # in case of overflow
