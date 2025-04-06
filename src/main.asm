@@ -20,6 +20,8 @@ msg_div_by_zero:
 	.asciz "Error: division by zero is not allowed.\n"
 msg_overflow:
 	.asciz "Error: overflow has occurred.\n"
+msg_no_previous_op:
+	.asciz "No previous operation.\n"
 	
 # Strings to format output
 space:				
@@ -205,23 +207,39 @@ case_div:
 # Case that goes back to the last result
 # poping the current top node
 case_undo:
-	mv a0, s6		# a0 = s6(list address)
-	jal list_pop		# Remove tha last element
-	
-	mv a0, s6		# a0 = s6(list address)
-	jal list_top		# a0 = top node number
-	
-	jal print_result	# Call function format output result
-	
-	j calculator_on		# Continue for more operations
-	
-	# TODO
-	# check if list is empty, if necessary
-	# throw error, "There is no last operation"
-	# and continue loop
-	# otherwise, remove top of the list
+	mv a0, s6      		# a0 = s6(list address)
+	jal list_pop     	# Call the function to remove the last element
+    
+    	# Check if pop succeeded
+   	beqz a0, undo_failed	# If a0 == 0, pop failed
+    
+    	# Check if list is empty
+    	mv a0, s6		# a0 = s6(list address)
+    	jal list_empty		# Check if list is empty (returns 1 in a0 if empty)
+    	bnez a0, undo_empty_list
+    
+   	# List not empty, print new top
+    	mv a0, s6		# a0 = s6(list address)
+    	jal list_top		# a0 = top node value
+    
+   	jal print_result	# Call the function format output result
+    	j calculator_on		# Continue for more operations
 
-	j calculator_on
+undo_failed:
+	# Case pop was failed 
+    	li a7, 4		# Syscall code 4: print a string		
+    	la a0, msg_no_previous_op # Load 1st byte of msg in a0
+    	ecall			# Call the system
+    	j calculator_on		# Continue for more operations
+
+undo_empty_list:
+    	# All operations undid (the last operation was undid)
+    	li a7, 4		# Syscall code 4: print a string		
+    	la a0, msg_no_previous_op # Load 1st byte of msg in a0
+    	ecall			# Call the system
+    	j calculator_on		# Continue for more operations
+	
+	
 	
 # Print history of results 
 # and ends calculator run
@@ -295,21 +313,33 @@ list_push:
 # arguments
 # a0: list address
 # return 
+# a0: status (1 = success, 0 = failure)
 # a1: value of the element removed  
 list_pop:
-	
-	# Get the list address
-	lw t0, 0(a0)        	# t0 = address of top node
-	beqz t0, error_null_list # Exit if list is empty
+   	# Check for null list pointer
+   	beqz a0, error_null_list
     
+    	# Get list address
+    	lw t0, 0(a0)        	# t0 = address of top node
+	beqz t0, pop_empty  	# if null, list is empty
+    
+    	# Successful pop
     	# Get the value (store in a1 for return)
-   	lw a1, 4(t0)        	# a1 = value from node
-    
-    	# Update list head to next node
-	lw t1, 0(t0)        	# t1 = next node address
-	sw t1, 0(a0)        	# Update list head pointer
+    	lw a1, 4(t0)        	# a1 = value from node
     	
-	jr ra               	# Return with value in a1
+    	# Update list head next node
+    	lw t1, 0(t0)        	# t1 = next node address
+	sw t1, 0(a0)        	# update list head
+    
+	# Return success    
+    	li a0, 1      		# a0 = 1      
+    	jr ra			# jump to return address
+
+pop_empty:
+	# Return failure and value 0
+	li a0, 0		# a0 = 0
+    	li a1, 0		# a1 = 0
+    	jr ra			# jump to return address	
 	
 	
 # Function to get number on top
