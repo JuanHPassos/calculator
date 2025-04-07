@@ -35,7 +35,13 @@ result:
 	
 history_of_res:
 	.asciz "History of results = "
+	
+operation_msg:
+	.asciz "Type the operation: '+' for sum, '-' for sub, '*' for mul, '/' for div, 'u' for undo, 'f' to finish: "
 
+read_int_msg:
+	.asciz "Type the number: "
+	
 	.text 			# Code
 	.align 2 		# Instructions aligned by word (32 bits)
 	.globl main 		# Sets main as program start
@@ -52,6 +58,11 @@ main:
 	jal list 		# Returns the address of the list in a0
 	mv s6, a0 		# s6 = pointer to list
 		 	 	 	  	 	 	  	 	 	 
+	# Asks for the 1st input
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, read_int_msg 	# Load 1st byte adress
+	ecall 			# Syscall to print string
+	
 	# Read 1st input
 	li a7, 5 		# Syscall code 5: read int
 	ecall 			# Syscall to read int (store in a0)
@@ -62,6 +73,11 @@ main:
 	jal list_push 		# Add number (int) to the list
 	
 calculator_on:
+	# Asks for the code operation
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, operation_msg 	# Load 1st byte adress
+	ecall 			# Syscall to print string
+
 	# Read code operation
 	li a7, 12 		# Syscall code 12: read char
 	ecall 			# Syscall to read  (stored in a0)
@@ -77,6 +93,11 @@ calculator_on:
 	# Switch case for undo or finish operations
 	beq s7, s4, case_undo 	# s7 = 'u'
 	beq s7, s5, case_finish # s7 = 'f'
+	
+	# Asks for the number to be operated
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, read_int_msg 	# Load 1st byte adress
+	ecall 			# Syscall to print string
 	
 	# Read number to be operated
 	li a7, 5 		# Syscall code 5: read int
