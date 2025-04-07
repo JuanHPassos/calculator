@@ -130,7 +130,7 @@ case_sub:
 	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
 	# Do the current operation
-	sub s9, s8, a0 		# s9 = top node number(a0) - inputted number(s8)
+	sub s9, a0, s8 		# s9 = top node number(a0) - inputted number(s8)
 	
 	# Overflow occurs when:
 	# 1. Subtracting a negative from a positivea and result is negative
