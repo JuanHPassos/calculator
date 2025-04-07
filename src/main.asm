@@ -106,7 +106,7 @@ case_sum:
 	# 2. Two negative numbers are added together and the result is positive
 	# Check overflow
 	slti t0, a0, 0		# t0 = (a0 < 0) - is a0 neg? 1:0
-	slt t1, s9, s8		# t1 = (s8 + a0 < s8) - sum result lower result? 1:0
+	slt t1, s9, s8		# t1 = (s8 + a0 < s8) - sum result lower number? 1:0
 	bne t0, t1, error_overflow # overflow if (a0 < 0) && (s8 + a0 >= s8)
 				#		|| (a0 >= 0) && (s8 + a0 < s8)
 	
@@ -137,8 +137,8 @@ case_sub:
 	# 2. Subtracting a positive from a negative and result is positive
 	# Check overflow
 	slti t0, a0, 0		# t0 = (a0 < 0) - is a0 neg? 1:0
-	slt t1, s8, s9        	# t1 = (s8 - a0 > s8) when a0 is negative
-                          	# or (s8 - a0 < s8) when a0 is positive
+	slt t1, s8, s9        	# t1 = (s8 < a0 - s8) - number lower than subtraciton result? 1:0
+	
 	bne t0, t1, error_overflow # overflow if (a0 < 0) && (s8 + a0 < s8)
 				#		|| (a0 >= 0) && (s8 + a0 >= s8)
 	
