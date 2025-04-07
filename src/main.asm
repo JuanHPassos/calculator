@@ -22,6 +22,8 @@ msg_overflow:
 	.asciz "Error: overflow has occurred.\n"
 msg_no_previous_op:
 	.asciz "No previous operation.\n"
+msg_invalid_op:
+	.asciz "Invalid operation, try again.\n"
 	
 # Strings to format output
 space:				
@@ -278,9 +280,12 @@ case_finish:
 	j calculator_off	# Jump to calculator_off
 
 invalid_input:
-	# TODO
-	# print "Invalid input" and continue loop
-	j calculator_on
+	# Prints error message and goes back to calculator_on
+	li a7, 4		# Syscall 4: print string
+	la a0, msg_invalid_op	# Output message
+	ecall			# Syscall
+	
+	j calculator_on		# Return to calculator_on loop
 
 calculator_off:
 	# TODO
@@ -496,4 +501,4 @@ print_result:
 	la a0, breakline	# Load 1st byte adress
 	ecall 			# Syscall to print string
 	# End function
-	jr ra	
+	jr ra
