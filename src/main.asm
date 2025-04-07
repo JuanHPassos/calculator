@@ -130,7 +130,7 @@ case_sub:
 	mv a0, s6		# a0 = list address
 	jal list_top		# a0 = top node number
 	# Do the current operation
-	sub s9, s8, a0 		# s9 = top node number(a0) - inputted number(s8)
+	sub s9, a0, s8 		# s9 = top node number(a0) - inputted number(s8)
 	
 	# Overflow occurs when:
 	# 1. Subtracting a negative from a positivea and result is negative
@@ -316,8 +316,8 @@ list_push:
 # a0: status (1 = success, 0 = failure)
 # a1: value of the element removed  
 list_pop:
-   	# Check for null list pointer
-   	beqz a0, error_null_list
+   	# Catch possible error(dont try to acess null pointer)
+	beqz a0, error_null_list# a0 = 0, list dont exist(null pointer)
     
     	# Get list address
     	lw t0, 0(a0)        	# t0 = address of top node
@@ -349,6 +349,9 @@ pop_empty:
 # return: 
 # a0, number on top node of the list
 list_top:
+	# Catch possible error(dont try to acess null pointer)
+	beqz a0, error_null_list# a0 = 0, list dont exist(null pointer)
+
 	# Get the first element(number) in the list
 	lw t0, 0(a0) 		# t0 = address to top node
 	lw t1, 4(t0) 		# t1 = top node number
