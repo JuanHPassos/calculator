@@ -160,10 +160,18 @@ case_sub:
 	# 2. Subtracting a positive from a negative and result is positive
 	# Check overflow
 	slti t0, a0, 0		# t0 = (a0 < 0) - is a0 neg? 1:0
-	slt t1, s8, s9        	# t1 = (s8 < a0 - s8) - number lower than subtraction result? 1:0
-	
-	bne t0, t1, error_overflow # overflow if (a0 < 0) && (s8 + a0 < s8)
-				#		|| (a0 >= 0) && (s8 + a0 >= s8)
+	slti t1, s8, 0        	# t1 = (s8 < 0) - is s8 neg? 1:0
+	# t1 = number have opposite signs
+	xor t0, t1, t0		# if the numbers have opposite signs, possible overflow
+	# t2 = result(s9) has the same sign s8
+	slti t2, s9, 0		# s9 = (s9 < 0) - is s9 neg? 1:0
+	# xnor t2, t2, t1
+	xor t2, t2, t1
+	xori t2, t2, 1
+	# overflow if t1 = 1 and t2 = 1
+	and t0, t0, t2
+	li t2, 1
+	beq t0, t2, error_overflow 
 	
 	# Creates new node with current list address and the result of the sum
 	mv a0, s6		# a0 = s6(list address)
