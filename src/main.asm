@@ -11,8 +11,11 @@
 # s9 = result of current operation
 
 	.data 			# Stores data in RAM
-	.align 0 		# Aligns data by byte
-			
+	.align 2		# Aligns data by word
+list_pointer:
+	.word 0			# Create space(4 bytes) in RAM with NULL(0) value
+	
+	.align 0 		# Aligns data by byte		
 # Error messages
 msg_null_list:			
 	.asciz "Error: null list.\n"
@@ -58,7 +61,8 @@ main:
 	
 	# Create list 
 	jal list 		# Returns the address of the list in a0
-	mv s6, a0 		# s6 = pointer to list
+	la s6, list_pointer	# s6 = adress that have the adress of the list
+	sw a0, 0(s6)		# save the list adress in RAM
 		 	 	 	  	 	 	  	 	 	 
 	# Asks for the 1st input
 	li a7, 4 		# Syscall code 4: print a string
@@ -71,7 +75,7 @@ main:
 	
 	# Insert first number into list to avoid repeated code
 	mv a1, a0 		# Move input to a1
-	mv a0, s6 		# Move list adress a0
+	lw a0, 0(s6) 		# Move list adress a0
 	jal list_push 		# Add number (int) to the list
 	
 calculator_on:
@@ -119,7 +123,7 @@ calculator_on:
 # and stores the result as the new top
 case_sum:
 	# Get number of the last operation
-	mv a0, s6		# a0 = list address
+	lw a0, 0(s6)		# a0 = list address
 	jal list_top		# a0 = top node number
 	# Do the current operation
 	add s9, s8, a0 		# s9 = top node number(a0) + inputted number(s8)
@@ -135,7 +139,7 @@ case_sum:
 	
 			
 	# Creates new node with current list address and the result of the sum
-	mv a0, s6		# a0 = s6(list address)
+	lw a0, 0(s6)		# a0 = s6(list address)
 	mv a1, s9		# a1 = s9(result of current operation)
 	jal list_push		# Insert s9 on the top of the list
 	
@@ -150,7 +154,7 @@ case_sum:
 # and stores the result as the new top
 case_sub:
 	# Get number of the last operation
-	mv a0, s6		# a0 = list address
+	lw a0, 0(s6)		# a0 = list address
 	jal list_top		# a0 = top node number
 	# Do the current operation
 	sub s9, a0, s8 		# s9 = top node number(a0) - inputted number(s8)
@@ -174,7 +178,7 @@ case_sub:
 	beq t0, t2, error_overflow 
 	
 	# Creates new node with current list address and the result of the sum
-	mv a0, s6		# a0 = s6(list address)
+	lw a0, 0(s6)		# a0 = s6(list address)
 	mv a1, s9		# a1 = s9(result of current operation)
 	jal list_push		# Insert s9 on the top of the list
 	
@@ -189,7 +193,7 @@ case_sub:
 # and stores the result as the new top
 case_mul:
 	# Get number of the last operation
-	mv a0, s6		# a0 = list address
+	lw a0, 0(s6)		# a0 = list address
 	jal list_top		# a0 = top node number
 	# Do the current operation
 	mul s9, s8, a0 		# s9 = top node number(s8) * inputted number(a0)
@@ -197,7 +201,7 @@ case_mul:
 	# TODO: check overflow
 	
 	# Creates new node with current list address and the result of the sum
-	mv a0, s6		# a0 = s6(list address)
+	lw a0, 0(s6)		# a0 = s6(list address)
 	mv a1, s9		# a1 = s9(result of current operation)
 	jal list_push		# Insert s9 on the top of the list
 	
@@ -215,7 +219,7 @@ case_div:
 	beqz s8, error_div_by_zero # Cant div by zero
 	
 	# Get number of the last operation
-	mv a0, s6		# a0 = list address
+	lw a0, 0(s6)		# a0 = list address
 	jal list_top		# a0 = top node number
 	# Do the current operation
 	div s9, a0, s8 		# s9 = top node number(a0) / inputted number(s8)
@@ -223,7 +227,7 @@ case_div:
 	# TODO: jal overflow
 	
 	# Creates new node with current list address and the result of the sum
-	mv a0, s6		# a0 = s6(list address)
+	lw a0, 0(s6)		# a0 = s6(list address)
 	mv a1, s9		# a1 = s9(result of current operation)
 	jal list_push		# Insert s9 on the top of the list
 	
@@ -238,19 +242,19 @@ case_div:
 # Case that goes back to the last result
 # poping the current top node
 case_undo:
-	mv a0, s6      		# a0 = s6(list address)
+	lw a0, 0(s6)      		# a0 = s6(list address)
 	jal list_pop     	# Call the function to remove the last element
     
     	# Check if pop succeeded
    	beqz a0, undo_failed	# If a0 == 0, pop failed
     
     	# Check if list is empty
-    	mv a0, s6		# a0 = s6(list address)
+    	lw a0, 0(s6)		# a0 = s6(list address)
     	jal list_empty		# Check if list is empty (returns 1 in a0 if empty)
     	bnez a0, undo_empty_list
     
    	# List not empty, print new top
-    	mv a0, s6		# a0 = s6(list address)
+    	lw a0, 0(s6)		# a0 = s6(list address)
     	jal list_top		# a0 = top node value
     
    	jal print_result	# Call the function format output result
@@ -281,7 +285,7 @@ case_finish:
 	ecall			# Syscall
 	
 	# Print results
-	mv a0, s6		# a0 = address of list
+	lw a0, 0(s6)		# a0 = address of list
 	jal list_print		# Print list elements (numbers)
 	
 	# Finish loop
@@ -296,10 +300,6 @@ invalid_input:
 	j calculator_on		# Return to calculator_on loop
 
 calculator_off:
-	# TODO
-	# maybe free memory
-	# OBS: i dont know if it is necessary
-
 	# End programn
 	li a7, 10 		# Syscall code 10: end programn
 	ecall 			# Syscall to end programn
