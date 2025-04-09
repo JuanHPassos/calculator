@@ -309,11 +309,12 @@ calculator_off:
 list:
 	# Control structure consists of a pointer to the first node
 	li a7, 9 		# Syscall code 9: allocate memory on heap
-	li a0, 4 		# Size to be allocated = 4 bytes
+	li a0, 8		# Size to be allocated = 4 bytes(adress) + 4 bytes(list size)
 	ecall 			# Syscall to allocate memory on the heap
 
 	# Ends function
 	sw zero, 0(a0) 		# Set pointer to NULL(0)
+	sw zero, 4(a0)		# Size of a empty list is zero
 	jr ra 			# Jump to return address
 
 # Function that inserts an element into the list
@@ -339,8 +340,13 @@ list_push:
 	sw t1, 0(a0) 		# Storing the address of the first/top node on the list into the new node
 	sw a1, 4(a0) 		# Storing the value into the new node
 	sw a0, 0(t0) 		# Making the new node the first/top node of the list
+	
+	# Update size of list
+	lw t1, 4(t0)		# Read the current size of list
+	addi t1, t1, 1		# Increment one to size of list
+	sw t1, 4(t0)		# Save new size
 
-	jr ra # jump to return address
+	jr ra # Jump to return address
 	
 	
 #Function that removes an element out the list
@@ -364,6 +370,11 @@ list_pop:
     	# Update list head next node
     	lw t1, 0(t0)        	# t1 = next node address
 	sw t1, 0(a0)        	# update list head
+	
+	# Update size of list
+	lw t1, 4(a0)		# Read the current size of list
+	addi t1, t1, -1		# Decrement one to size of list
+	sw t1, 4(a0)		# Save new size
     
 	# Return success    
     	li a0, 1      		# a0 = 1      
@@ -431,9 +442,9 @@ loop_list_print_exit:
 	jr ra 			# Jump to return address
 	
 # Function to verify if the list is empty
-# argument: 
+# Argument: 
 # a0 ,address of list
-# return: 
+# Return: 
 # a0, 1 if list if empty, otherwise 0
 list_empty:
 	# Copying the list address to t0 
@@ -449,6 +460,20 @@ list_empty:
 	seqz a0, t0		# t0 == 0 ? 1:0
 	
 	jr ra               	# Return with value in a1
+	
+# Function to return the size of list
+# Argument: 
+# a0: adress of list
+# Return:
+# a0: size of list
+list_size:
+	# Catch possible error(dont try to acess null pointer)
+	beqz a0, error_null_list	# a0 = 0, list dont exist(null pointer)
+	# Return size of list
+	lw a0, 4(a0)			# a0 [adress of first node, size of list]
+	jr ra				# Return size in a0				
+	
+	
 
 # Function to print error message
 # in case of overflow
