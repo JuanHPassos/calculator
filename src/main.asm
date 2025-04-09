@@ -25,6 +25,8 @@ msg_overflow:
 	.asciz "Error: overflow has occurred.\n"
 msg_no_previous_op:
 	.asciz "No previous operation.\n"
+msg_no_previous_op_remains:
+	.asciz "No previous operation remains.\n"
 msg_invalid_op:
 	.asciz "Invalid operation, try again.\n"
 	
@@ -42,10 +44,16 @@ history_of_res:
 	.asciz "History of results = "
 	
 operation_msg:
-	.asciz "Type the operation: '+' for sum, '-' for sub, '*' for mul, '/' for div, 'u' for undo, 'f' to finish: "
+	.asciz "Type the operation: "
 
 read_int_msg:
-	.asciz "Type the number: "
+	.asciz "Type number: "
+help_msg:
+    	.ascii "Calculator with operations '+', '-', '*', '/', 'u', 'f'\n"
+    	.ascii "Special Operations: u (undo last op), f (finish)\n"
+    	.ascii "First input: <number> <op> <number>\n"
+    	.ascii "Next inputs: <op> <number>\n"
+    	.asciz "Performs operation between last result and input.\n\n"
 	
 	.text 			# Code
 	.align 2 		# Instructions aligned by word (32 bits)
@@ -64,11 +72,16 @@ main:
 	la s6, list_pointer	# s6 = adress that have the adress of the list
 	sw a0, 0(s6)		# save the list adress in RAM
 		 	 	 	  	 	 	  	 	 	 
-	# Asks for the 1st input
+	# Print a guide to the user
 	li a7, 4 		# Syscall code 4: print a string
-	la a0, read_int_msg 	# Load 1st byte adress
+	la a0, help_msg		# Load 1st byte adress
 	ecall 			# Syscall to print string
-	
+
+	# Print msg to read 1st input
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, read_int_msg	# Load 1st byte adress
+	ecall 			# Syscall to print string
+			
 	# Read 1st input
 	li a7, 5 		# Syscall code 5: read int
 	ecall 			# Syscall to read int (store in a0)
