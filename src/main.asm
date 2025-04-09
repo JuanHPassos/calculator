@@ -211,7 +211,14 @@ case_mul:
 	# Do the current operation
 	mul s9, s8, a0 		# s9 = top node number(s8) * inputted number(a0)
 	
-	# TODO: check overflow
+	# Overflow occurs when:
+	# The high part of the product operation is different of the sign extended
+	# Check overflow
+	mulh t2, s8, a0    # t2 = high part of mul operation (signed)
+	mul t3, s8, a0     # t3 = low part of mul
+	srai t4, t3, 31    # t4 = sign extended from low part (0 or -1)
+	xor t2, t2, t4     # If t2 != t4, have overflow
+	bnez t2, error_overflow # t2 != 0, overflow
 	
 	# Creates new node with current list address and the result of the sum
 	lw a0, 0(s6)		# a0 = s6(list address)
