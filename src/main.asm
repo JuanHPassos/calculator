@@ -255,15 +255,6 @@ case_div:
 # Case that goes back to the last result
 # poping the current top node
 case_undo:
-	# Check if have last operations
-	lw a0, 0(s6) 		# Load adress of the list
-	jal list_size		# Return size of the list in a0
-	# Because the logic of implementation if a0(size) = 1,
-	# there is no last operation, 
-	# because this one element is the 1st input.
-	li t0, 1		# Case occurs when 'u' is the first operation
-	beq t0, a0, error_no_previous_op 
-	
 	# Remove last operation
 	lw a0, 0(s6) 		# Load adress of the list
 	jal list_pop		
@@ -271,12 +262,11 @@ case_undo:
 	# Check if have last operations
 	lw a0, 0(s6) 		# Load adress of the list
 	jal list_size		# Return size of the list in a0
-	# Because the logic of implementation if a0(size) = 1,
+	# Because the logic of implementation if a0(size) <= 1,
 	# there is no last operation, 
 	# because this one element is the 1st input.
-	li t0, 1		# Case occurs when all the operations is removed
-	beq t0, a0, error_no_previous_op # and only remains the 1st input
-	# TODO: this error is not fatal, so do a jump to case finish to print history of results
+	slti t0, a0, 2		# Case occurs when all the operations is removed
+	bnez t0, error_no_previous_op # and only remains the 1st input or none
 	
 	# Print the prev last result
 	lw a0, 0(s6) 		# Load adress of the list
@@ -467,8 +457,6 @@ list_size:
 	lw a0, 4(a0)			# a0 [adress of first node, size of list]
 	jr ra				# Return size in a0				
 	
-	
-
 # Function to print error message
 # in case of overflow
 error_overflow:
