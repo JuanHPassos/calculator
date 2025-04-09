@@ -242,39 +242,35 @@ case_div:
 # Case that goes back to the last result
 # poping the current top node
 case_undo:
-	lw a0, 0(s6)      		# a0 = s6(list address)
-	jal list_pop     	# Call the function to remove the last element
-    
-    	# Check if pop succeeded
-   	beqz a0, undo_failed	# If a0 == 0, pop failed
-    
-    	# Check if list is empty
-    	lw a0, 0(s6)		# a0 = s6(list address)
-    	jal list_empty		# Check if list is empty (returns 1 in a0 if empty)
-    	bnez a0, undo_empty_list
-    
-   	# List not empty, print new top
-    	lw a0, 0(s6)		# a0 = s6(list address)
-    	jal list_top		# a0 = top node value
-    
-   	jal print_result	# Call the function format output result
-    	j calculator_on		# Continue for more operations
-
-undo_failed:
-	# Case pop was failed 
-    	li a7, 4		# Syscall code 4: print a string		
-    	la a0, msg_no_previous_op # Load 1st byte of msg in a0
-    	ecall			# Call the system
-    	j calculator_on		# Continue for more operations
-
-undo_empty_list:
-    	# All operations undid (the last operation was undid)
-    	li a7, 4		# Syscall code 4: print a string		
-    	la a0, msg_no_previous_op # Load 1st byte of msg in a0
-    	ecall			# Call the system
-    	j calculator_on		# Continue for more operations
+	# Check if have last operations
+	lw a0, 0(s6) 		# Load adress of the list
+	jal list_size		# Return size of the list in a0
+	# Because the logic of implementation if a0(size) = 1,
+	# there is no last operation, 
+	# because this one element is the 1st input.
+	li t0, 1		# Case occurs when 'u' is the first operation
+	beq t0, a0, error_no_previous_op 
 	
+	# Remove last operation
+	lw a0, 0(s6) 		# Load adress of the list
+	jal list_pop		
 	
+	# Check if have last operations
+	lw a0, 0(s6) 		# Load adress of the list
+	jal list_size		# Return size of the list in a0
+	# Because the logic of implementation if a0(size) = 1,
+	# there is no last operation, 
+	# because this one element is the 1st input.
+	li t0, 1		# Case occurs when all the operations is removed
+	beq t0, a0, error_no_previous_op # and only remains the 1st input
+	# TODO: this error is not fatal, so do a jump to case finish to print history of results
+	
+	# Print the prev last result
+	lw a0, 0(s6) 		# Load adress of the list
+	jal list_top		# Get the value of the top of the list
+	jal print_result	# Function to format output of result
+	
+	j calculator_on		# Return to calculator_on loop
 	
 # Print history of results 
 # and ends calculator run
@@ -495,11 +491,22 @@ error_null_list:
 	# End programn
 	li a7, 10 		# Syscall code 10: end programn
 	ecall 			# Syscall to end program
+
+# Function to print error message
+# in case of no previous operation
+error_no_previous_op:
+	# Print error message
+	li a7, 4 		# Syscall code 4: print a string
+	la a0, msg_no_previous_op# Load 1st byte of msg in a0
+	ecall 			# Syscall to print message
 	
+	# End programn
+	li a7, 10 		# Syscall code 10: end programn
+	ecall 			# Syscall to end program	
 
 # Function to print results
 # after an operation
-# argument
+# Argument
 # a0: result of operation
 print_result:
 	mv t0, a0		# t0 = result of operation
