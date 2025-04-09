@@ -244,8 +244,14 @@ case_div:
 	# Do the current operation
 	div s9, a0, s8 		# s9 = top node number(a0) / inputted number(s8)
 	
-	# TODO: jal overflow
+	# Overflow occurs when:
+	# if INT_MIN / -1 = 2^31, but INT_MAX is 2^(31) - 1
+	li   t0, -1            # t0 = -1
+	lui  t1, 0x80000       # t1 = INT_MIN (0x80000000 to 32 bits)
+	bne  s8, t0, no_overflow # If divider != -1, dont have overflow
+	beq  a0, t1, error_overflow  # INT_MIN / -1 -> Overflow
 	
+no_overflow:
 	# Creates new node with current list address and the result of the sum
 	lw a0, 0(s6)		# a0 = s6(list address)
 	mv a1, s9		# a1 = s9(result of current operation)
