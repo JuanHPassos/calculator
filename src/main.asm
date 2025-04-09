@@ -305,6 +305,7 @@ calculator_off:
 	ecall 			# Syscall to end programn
 
 # Function that creates a list
+# Argument:
 # a0: returns address of list
 list:
 	# Control structure consists of a pointer to the first node
@@ -318,7 +319,7 @@ list:
 	jr ra 			# Jump to return address
 
 # Function that inserts an element into the list
-# argument
+# Argument:
 # a0: list address
 # a1: value to be saved in node (int)
 list_push:
@@ -329,9 +330,9 @@ list_push:
 	beqz t0, error_null_list# t0 = 0, list dont exist(null pointer)
 
 	# Allocates memory in heap 
-	# (8 bytes = 4 bytes for next node address + 4 bytes for result of operation (int))
+	# struct node { int adressNextNode; int value; } -> 8 bytes
 	li a7, 9 		# Syscall code 9: allocate memory on heap
-	li a0, 8 		# Size to be allocated: 8 bytes
+	li a0, 12 		# Size to be allocated: 8 bytes
 	ecall 			# Syscall to allocate memory on the heap
 				# OBS: a0 now holds the address to the new allocated space in the heap
 
@@ -350,22 +351,15 @@ list_push:
 	
 	
 #Function that removes an element out the list
-# arguments
+# Argument:
 # a0: list address
-# return 
-# a0: status (1 = success, 0 = failure)
-# a1: value of the element removed  
 list_pop:
    	# Catch possible error(dont try to acess null pointer)
 	beqz a0, error_null_list# a0 = 0, list dont exist(null pointer)
     
     	# Get list address
     	lw t0, 0(a0)        	# t0 = address of top node
-	beqz t0, pop_empty  	# if null, list is empty
-    
-    	# Successful pop
-    	# Get the value (store in a1 for return)
-    	lw a1, 4(t0)        	# a1 = value from node
+    	beqz t0, end_list_pop
     	
     	# Update list head next node
     	lw t1, 0(t0)        	# t1 = next node address
@@ -375,23 +369,14 @@ list_pop:
 	lw t1, 4(a0)		# Read the current size of list
 	addi t1, t1, -1		# Decrement one to size of list
 	sw t1, 4(a0)		# Save new size
-    
-	# Return success    
-    	li a0, 1      		# a0 = 1      
-    	jr ra			# jump to return address
-
-pop_empty:
-	# Return failure and value 0
-	li a0, 0		# a0 = 0
-    	li a1, 0		# a1 = 0
-    	jr ra			# jump to return address	
 	
+end_list_pop: 
+    	jr ra			# Jump to return address	
 	
-# Function to get number on top
-# of the list
-# argument: 
+# Function to get number on top of the list
+# Argument: 
 # a0 ,address of list
-# return: 
+# Return: 
 # a0, number on top node of the list
 list_top:
 	# Catch possible error(dont try to acess null pointer)
@@ -405,7 +390,7 @@ list_top:
 	jr ra			# Jump to return address
 	
 # Function to print list (-1 if list dont exist)
-# argument
+# Argument:
 # a0: list adress
 list_print:
 	# Copying the list address to t0 
