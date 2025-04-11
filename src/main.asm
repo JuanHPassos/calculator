@@ -531,7 +531,7 @@ print_result:
 	ecall 			# Syscall to print string
 	
 	# Print result( int )
-	li a7, 1		# Syscall 10: print int
+	li a7, 1		# Syscall 1: print int
 	mv a0, t0		# Parameter: t0 (result of operation)
 	ecall			# Syscall
 	
