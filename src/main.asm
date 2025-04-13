@@ -348,7 +348,7 @@ list_push:
 	# Allocates memory in heap 
 	# struct node { int adressNextNode; int value; } -> 8 bytes
 	li a7, 9 			# Syscall code 9: allocate memory on heap
-	li a0, 12 			# Size to be allocated: 8 bytes
+	li a0, 8 			# Size to be allocated: 8 bytes
 	ecall 				# Syscall to allocate memory on the heap
 					# OBS: a0 now holds the address to the new allocated space in the heap
 
