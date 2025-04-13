@@ -180,17 +180,13 @@ case_sub:
 	# Check overflow
 	slti t0, a0, 0			# t0 = (a0 < 0) - is a0 neg? 1:0
 	slti t1, s8, 0        		# t1 = (s8 < 0) - is s8 neg? 1:0
-	
 	# t1 = number have opposite signs
 	xor t0, t1, t0			# if the numbers have opposite signs, possible overflow
-	
 	# t2 = result(s9) has the same sign s8
 	slti t2, s9, 0			# s9 = (s9 < 0) - is s9 neg? 1:0
-	
 	# xnor t2, t2, t1
 	xor t2, t2, t1
 	xori t2, t2, 1
-	
 	# overflow if t1 = 1 and t2 = 1
 	and t0, t0, t2
 	li t2, 1
@@ -306,7 +302,7 @@ case_finish:
 	
 	# Print results
 	lw a0, 0(s6)			# a0 = address of list
-	jal list_print			# Print list elements (numbers)
+	jal print_history_of_res	# Print list elements (numbers)
 	
 	# Finish loop
 	j calculator_off		# Jump to calculator_off
@@ -409,43 +405,6 @@ list_top:
 	
 	jr ra				# Jump to return address
 	
-# Function to print list (-1 if list dont exist)
-# Argument:
-# a0: list adress
-list_print:
-	# Copying the list address to t0 
-	mv t0, a0 			# t0 now holds the first byte of the list address
-
-	# Catch possible error(dont try to acess null pointer)
-	beqz t0, error_null_list	# t0 = 0, list dont exist(null pointer)
-	
-	# Get top to iterate through the list
-	lw t1, 0(t0) 			# Loading to t1 the address of the first/top node on the list
-
-loop_list_print:
-	# If current node dont exist(t1 == 0), break
-	beqz t1, loop_list_print_exit 
-
-	# Read data of the current node
-	lw a0, 4(t1) 			# Load value
-	lw t1, 0(t1)			# Load adress to next node
-					# OBS: t1 is saving the adress of the nodes
-	
-	# Print current value
-	li a7, 1			# Syscall code 1: print int
-	ecall 				# Syscall to print value in a0
-	
-	# Separate numbers by space
-	li a7, 4 			# Syscall code 4: print a string
-	la a0, space 			# Load 1st byte adress
-	ecall 				# Syscall to print string
-	
-	j loop_list_print		# Continue to print values
-	
-loop_list_print_exit:		
-	# End function
-	jr ra 				# Jump to return address
-	
 # Function to verify if the list is empty
 # Argument: 
 # a0 ,address of list
@@ -460,7 +419,6 @@ list_empty:
 	
 	# Get the first byte from the address of the first node
 	lw t0, 0(a0)        		# t0 = address of top node
-	
 	# if t0(adress of 1st node) = 0, list is empty
 	seqz a0, t0			# t0 == 0 ? 1:0
 	
@@ -549,3 +507,54 @@ print_result:
 	ecall 				# Syscall to print string
 	# End function
 	jr ra
+	
+# Function to print history of results
+# Argument:
+# a0: list adress
+print_history_of_res:
+	# Uses stack pointer to save the value of a "s" register
+	addi sp, sp, -8			# 4 bytes to save a word
+	sw ra, 4(sp)			# Save the return adress
+	sw s0, 0(sp)			# Now can use s0
+
+	# Copying the list address to s0 
+	mv s0, a0 			# s0 now holds the first byte of the list address
+
+	# Catch possible error(dont try to acess null pointer)
+	beqz s0, error_null_list	# t0 = 0, list dont exist(null pointer)
+	
+loop_print_history_of_res:
+	# Verify if have any last operation(size > 1)
+	mv a0, s0			# Gives list adress like argument
+	jal list_size			# Returns size in a0
+	slti t0, a0, 2			# If size < 2, there's no last results
+	bnez t0, loop_print_history_of_res_exit
+	
+	# Get top of the list
+	mv a0, s0			# Gives list adress like argument
+	jal list_top			# Returns the value of top in a0
+	
+	# Print current value
+	li a7, 1			# Syscall code 1: print int
+	ecall 				# Syscall to print value in a0
+	
+	# Separate numbers by space
+	li a7, 4 			# Syscall code 4: print a string
+	la a0, space 			# Load 1st byte adress
+	ecall 				# Syscall to print string
+	
+	# Remove the top of list
+	mv a0, s0			# Gives list adress like argument
+	jal list_pop
+	
+	j loop_print_history_of_res	# Continue to print values
+	
+loop_print_history_of_res_exit:	
+	# Uses stack pointer to get the value of a "s" register
+	lw s0, 0(sp)			# Now s0 save the last value
+	lw ra, 4(sp)			# Get return adress of this function
+	addi sp, sp, 8			# Get the sp to the last position
+				
+	# End function
+	jr ra 				# Jump to return address
+	
