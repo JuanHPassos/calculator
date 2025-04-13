@@ -366,7 +366,7 @@ list_push:
 	jr ra # Jump to return address
 	
 	
-#Function that removes an element out the list
+# Function that removes an element out the list
 # Argument:
 # a0: list address
 list_pop:
